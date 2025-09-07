@@ -11,3 +11,20 @@ export async function obtenerListas() {
     return [];
   }
 }
+
+
+export async function insertarLista(lista) {
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(lista),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al insertar la lista");
+  }
+
+  return await response.json();
+}
