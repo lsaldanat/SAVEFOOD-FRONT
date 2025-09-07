@@ -15,7 +15,7 @@ export async function obtenerListas() {
 
 export async function insertarLista(lista) {
   const response = await fetch(API_URL, {
-    method: "POST",
+    method: "POST", 
     headers: {
       "Content-Type": "application/json",
     },
@@ -27,4 +27,31 @@ export async function insertarLista(lista) {
   }
 
   return await response.json();
+}
+
+
+export async function obtenerListaPorId(id) {
+  try {
+    const res = await fetch(`${API_URL}/${id}`);
+    if (!res.ok) throw new Error("Error al obtener la lista por ID");
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function actualizarNota(id, nota) {
+  try {
+    const res = await fetch(`${API_URL}/${id}/nota  `, {
+      method: "PATCH", // o "PUT" si tu backend no acepta PATCH
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nota),
+    });
+    if (!res.ok) throw new Error("Error al actualizar la nota");
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
