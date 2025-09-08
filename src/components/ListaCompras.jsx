@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
-import { obtenerListas, insertarLista } from "../services/listaService";
+import { obtenerListas, insertarLista, eliminarLista  } from "../services/listaService";
 //import ThemeToggle from "./ThemeToggle"; // 
 
 import { useNavigate } from "react-router-dom"; // Para navegación
-import { EyeIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
+//import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../components/ConfirmModal";
 
 
 export default function ListaCompras() {
 
   const navigate = useNavigate();
   const [listas, setListas] = useState([]);
+
+  // estados NUEVOS para el modal
+  const [listaAEliminar, setListaAEliminar] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
   const [nuevaLista, setNuevaLista] = useState({
     nombre: "",
     descripcion: "",
@@ -51,6 +58,19 @@ export default function ListaCompras() {
       console.error("Error al insertar la lista:", error);
     }
   };
+
+  //Funcion para eliminar
+  const handleEliminar = async () => {
+    try {
+      await eliminarLista(listaAEliminar.idLista);
+      setListas(listas.filter((l) => l.idLista !== listaAEliminar.idLista));
+      setShowModal(false);
+      setListaAEliminar(null);
+    } catch (error) {
+      console.error("Error al eliminar la lista:", error);
+    }
+  };
+
 
   
   return (
@@ -100,17 +120,29 @@ export default function ListaCompras() {
                 <td className="p-3 border-b dark:border-gray-600">{new Date(lista.fecha).toLocaleDateString()}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.nota}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.usuario?.nombre || "Sin usuario"}</td>
-                <td className="p-3 border-b dark:border-gray-600 text-center space-x-2">
-                  
-                   {/* Ojo para solo Nota */}
-                  <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/editar/${lista.idLista}`)}>
-                    <EyeIcon className="h-5 w-5 text-blue-500 cursor-pointer" />
-                  </button>
+                <td className="p-3 border-b dark:border-gray-600 text-center space-x-3">
+                  <div className="flex justify-center space-x-3">
 
-                  {/* Ojo para editar todos los campos */}
+                     {/* Ojo para solo Nota */}
+                    <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/editar/${lista.idLista}`)}>
+                      <EyeIcon className="h-5 w-5 text-blue-500 cursor-pointer" />
+                    </button>
+
+                    {/* Ojo para editar todos los campos */}
                     <button className="text-green-600 hover:text-green-800" onClick={() => navigate(`/editar-lista/${lista.idLista}`)} >
                       <EyeIcon className="h-5 w-5 text-green-500 cursor-pointer" />
                     </button>
+
+                    {/* Botón eliminar */}
+                    <button className="text-red-600 hover:text-red-800" onClick={() =>{
+                                                                                            setShowModal(true);
+                                                                                            setListaAEliminar(lista);
+                                                                                          }}>
+                      <TrashIcon className="h-5 w-5 cursor-pointer" />
+                    </button>
+
+                  </div>
+                  
 
                 </td>
               </tr>
@@ -118,6 +150,17 @@ export default function ListaCompras() {
           </tbody>
         </table>
       </div>
+
+
+
+      <ConfirmModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onConfirm={handleEliminar}
+      />
+
+
+
     </div>
   );
 }

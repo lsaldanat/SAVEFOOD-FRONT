@@ -70,3 +70,12 @@ export async function actualizarLista(id, lista) {
   return true;
   //return await res.json();
 }
+
+
+export async function eliminarLista(id) {
+  const res = await fetch(`${API_URL}/${id}`, {
+     method: "DELETE" 
+    });
+  if (!res.ok) throw new Error("Error al eliminar la lista");
+}
+

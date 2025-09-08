@@ -18,12 +18,7 @@ export default function EditarLista() {
 
         try {
             const data = await obtenerListaPorId(id);
-            //   setLista({
-            //     nombre: data.nombre,
-            //     descripcion: data.descripcion,
-            //     fecha: data.fecha.split("T")[0], // quitar hora
-            //     nota: data.nota,
-            //   });
+            
             const fechaFormateada = data.fecha 
                                     ? new Date(data.fecha).toISOString().split("T")[0]
                                     : "";
