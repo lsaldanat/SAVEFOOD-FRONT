@@ -100,10 +100,18 @@ export default function ListaCompras() {
                 <td className="p-3 border-b dark:border-gray-600">{new Date(lista.fecha).toLocaleDateString()}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.nota}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.usuario?.nombre || "Sin usuario"}</td>
-                <td className="p-3 border-b dark:border-gray-600 text-center">
+                <td className="p-3 border-b dark:border-gray-600 text-center space-x-2">
+                  
+                   {/* Ojo para solo Nota */}
                   <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/editar/${lista.idLista}`)}>
                     <EyeIcon className="h-5 w-5 text-blue-500 cursor-pointer" />
                   </button>
+
+                  {/* Ojo para editar todos los campos */}
+                    <button className="text-green-600 hover:text-green-800" onClick={() => navigate(`/editar-lista/${lista.idLista}`)} >
+                      <EyeIcon className="h-5 w-5 text-green-500 cursor-pointer" />
+                    </button>
+
                 </td>
               </tr>
             ))}

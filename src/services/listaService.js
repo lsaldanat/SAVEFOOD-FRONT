@@ -55,3 +55,18 @@ export async function actualizarNota(id, nota) {
     return null;
   }
 }
+
+
+export async function actualizarLista(id, lista) {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...lista, idLista: parseInt(id) }),
+  });
+  if (!res.ok) {
+    throw new Error("Error al actualizar la lista");
+  }
+  
+  return true;
+  //return await res.json();
+}

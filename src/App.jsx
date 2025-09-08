@@ -7,6 +7,7 @@ import ThemeToggle from "./components/ThemeToggle";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ListaCompras from "./components/ListaCompras";
 import EditarNota from "./components/EditarNota";
+import EditarLista from "./components/EditarLista";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ListaCompras />} />
           <Route path="/editar/:id" element={<EditarNota />} />
+          <Route path="/editar-lista/:id" element={<EditarLista />} /> 
         </Routes>
       </div>
     </BrowserRouter>
