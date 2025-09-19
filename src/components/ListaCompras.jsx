@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { obtenerListas, insertarLista, eliminarLista  } from "../services/listaService";
 //import ThemeToggle from "./ThemeToggle"; // 
-
 import { useNavigate } from "react-router-dom"; // Para navegación
-import { TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, EyeIcon, PlusIcon } from "@heroicons/react/24/outline";
 //import ConfirmModal from "./ConfirmModal";
 import ConfirmModal from "../components/ConfirmModal";
 
@@ -133,6 +132,8 @@ export default function ListaCompras() {
                       <EyeIcon className="h-5 w-5 text-green-500 cursor-pointer" />
                     </button>
 
+                    
+
                     {/* Botón eliminar */}
                     <button className="text-red-600 hover:text-red-800" onClick={() =>{
                                                                                             setShowModal(true);
@@ -140,6 +141,20 @@ export default function ListaCompras() {
                                                                                           }}>
                       <TrashIcon className="h-5 w-5 cursor-pointer" />
                     </button>
+
+
+                    {/* Ojo para agregar detalle */}
+                    <button className="text-fuchsia-800 hover:text-fuchsia-900" onClick={() => navigate(`/add-detalle/${lista.idLista}`)} >
+                      <PlusIcon  className="h-5 w-5 text-fuchsia-700 cursor-pointer" />
+                    </button>
+
+                    {/* Ojo para ver detalles de la lista */}
+                    <button className="text-indigo-600 hover:text-indigo-800" onClick={() => navigate(`/ver-detalle/${lista.idLista}`)} >
+                      <EyeIcon className="h-5 w-5 text-indigo-500 cursor-pointer" />
+                    </button>
+
+
+
 
                   </div>
                   

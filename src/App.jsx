@@ -10,6 +10,11 @@ import EditarNota from "./components/EditarNota";
 import EditarLista from "./components/EditarLista";
 
 
+ import DetallesLista from "./components/DetallesLista"; // 👈
+ import AddDetalle from "./components/AddDetalle"; // 👈 crea este component
+
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -25,6 +30,8 @@ function App() {
           <Route path="/" element={<ListaCompras />} />
           <Route path="/editar/:id" element={<EditarNota />} />
           <Route path="/editar-lista/:id" element={<EditarLista />} /> 
+          <Route path="/ver-detalle/:idLista" element={<DetallesLista />} />
+          <Route path="/add-detalle/:idLista" element={<AddDetalle />} />  
         </Routes>
       </div>
     </BrowserRouter>

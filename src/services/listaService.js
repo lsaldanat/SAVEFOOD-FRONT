@@ -1,3 +1,5 @@
+import AddDetalle from "../components/AddDetalle";
+
 const API_URL = "https://localhost:7224/api/ListaDeCompras"; // tu endpoint
 
 export async function obtenerListas() {
@@ -78,4 +80,5 @@ export async function eliminarLista(id) {
     });
   if (!res.ok) throw new Error("Error al eliminar la lista");
 }
+
 
