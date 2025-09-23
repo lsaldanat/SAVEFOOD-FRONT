@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
 import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
+
+import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
 
 export default function DetallesLista() {
   const { idLista } = useParams();
@@ -10,6 +11,7 @@ export default function DetallesLista() {
   const [detalles, setDetalles] = useState([]);
 
   useEffect(() => {
+
     async function fetchData() {
       try {
         const data = await obtenerDetallesPorLista(idLista);
@@ -74,10 +76,7 @@ export default function DetallesLista() {
           <tbody>
             {detalles.length > 0 ? (
               detalles.map((detalle) => (
-                <tr
-                  key={detalle.idDetalle}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors"
-                >
+                <tr key={detalle.idDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
                   <td className="p-3 border-b dark:border-gray-600">{detalle.producto}</td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.descripcion}</td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.cantidad}</td>
@@ -95,18 +94,12 @@ export default function DetallesLista() {
                   </td>
                   <td className="p-3 border-b dark:border-gray-600 text-center">
                     {/* Marcar comprado */}
-                    <button
-                      className="text-green-600 hover:text-green-800"
-                      onClick={() => handleMarcarComprado(detalle.idDetalle)}
-                    >
+                    <button className="text-green-600 hover:text-green-800" onClick={() => handleMarcarComprado(detalle.idDetalle)} >
                       <CheckCircleIcon className="h-5 w-5 cursor-pointer" />
                     </button>
 
                     {/* Eliminar */}
-                    <button
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => handleEliminar(detalle.idDetalle)}
-                    >
+                    <button className="text-red-600 hover:text-red-800" onClick={() => handleEliminar(detalle.idDetalle)} >
                       <TrashIcon className="h-5 w-5 cursor-pointer" />
                     </button>
                   </td>
@@ -124,4 +117,5 @@ export default function DetallesLista() {
       </div>
     </div>
   );
+
 }

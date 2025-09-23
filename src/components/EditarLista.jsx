@@ -53,9 +53,9 @@ export default function EditarLista() {
     <div className="p-6 max-w-lg mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">✏️ Editar Lista Completa</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="text" name="nombre" value={lista.nombre} onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-          placeholder="Nombre" required />
+        <input type="text" className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+         name="nombre" value={lista.nombre} onChange={handleChange} placeholder="Nombre" required /> 
+         
         <input type="text" name="descripcion" value={lista.descripcion} onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
           placeholder="Descripción" />

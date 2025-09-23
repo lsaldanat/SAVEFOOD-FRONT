@@ -43,73 +43,30 @@ export default function AddDetalle() {
       <h2 className="text-xl font-semibold">Agregar Detalle a la Lista #{idLista}</h2>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="producto"
-          placeholder="Producto"
-          value={detalle.producto}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-          required
-        />
+        <input type="text" className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700" 
+          name="producto" placeholder="Producto" value={detalle.producto} onChange={handleChange} required />
 
-        <input
-          type="text"
-          name="descripcion"
-          placeholder="Descripción"
-          value={detalle.descripcion}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-        />
+        <input className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700" type="text"
+          name="descripcion" placeholder="Descripción" value={detalle.descripcion} onChange={handleChange} />
 
-        <select
-  name="unidades"
-  value={detalle.unidades}
-  onChange={handleChange}
-  className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-  required
->
-  <option value="">Seleccione unidad</option>
-  <option value="Kg">Kg</option>
-  <option value="Litro">Litro</option>
-  <option value="Pack">Pack</option>
-</select>
+        <select className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700" name="unidades"
+          value={detalle.unidades} onChange={handleChange} required >
+          <option value="">Seleccione unidad</option>
+          <option value="Kg">Kg</option>
+          <option value="Litro">Litro</option>
+          <option value="Pack">Pack</option>
+        </select>
 
+        <input className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700" type="number"
+            name="cantidad" placeholder="Cantidad" value={detalle.cantidad} onChange={handleChange} required />
 
-        <input
-          type="number"
-          name="cantidad"
-          placeholder="Cantidad"
-          value={detalle.cantidad}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-          required
-        />
+        <input className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700" type="date"
+            name="fechaVencimiento" value={detalle.fechaVencimiento} onChange={handleChange} />
 
-        <input
-          type="date"
-          name="fechaVencimiento"
-          value={detalle.fechaVencimiento}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-        />
+        <input className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700" type="number"
+            name="precio" step="0.01" placeholder="Precio" value={detalle.precio} onChange={handleChange} />
 
-        <input
-          type="number"
-          step="0.01"
-          name="precio"
-          placeholder="Precio"
-          value={detalle.precio}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-        />
-
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
-        >
-          💾 Guardar Detalle
-        </button>
+        <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700" > 💾 Guardar Detalle </button>
       </form>
     </div>
   );
