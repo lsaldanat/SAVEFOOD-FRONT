@@ -1,181 +1,163 @@
 import { useEffect, useState } from "react";
-import { obtenerListas, insertarLista, eliminarLista  } from "../services/listaService";
-//import ThemeToggle from "./ThemeToggle"; // 
-import { useNavigate } from "react-router-dom"; // Para navegación
-import { TrashIcon, EyeIcon, PlusIcon } from "@heroicons/react/24/outline";
-//import ConfirmModal from "./ConfirmModal";
-import ConfirmModal from "../components/ConfirmModal";
-
+import { obtenerListas, insertarLista  } from "../services/listaService";
 
 export default function ListaCompras() {
-
-  const navigate = useNavigate();
   const [listas, setListas] = useState([]);
-
-  // estados NUEVOS para el modal
-  const [listaAEliminar, setListaAEliminar] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-
   const [nuevaLista, setNuevaLista] = useState({
-    nombre: "",
-    descripcion: "",
-    fecha: "",
-    nota: "",
-    idUsuario: 1, // usuario fijo de prueba
+    Nombre: "",
+    Descripcion: "",
+    Fecha: "",
+    Nota: "",
+    IdUsuario: 1,
   });
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchData() {
-      const data = await obtenerListas();
-      setListas(data);
+      try {
+        const data = await obtenerListas();
+        if (isMounted) setListas(data);
+      } catch (error) {
+        console.error("Error al obtener listas:", error);
+      }
     }
+
     fetchData();
+    return () => { isMounted = false; };
   }, []);
 
   const handleChange = (e) => {
-    setNuevaLista({
-      ...nuevaLista,
-      [e.target.name]: e.target.value,
-    });
+    setNuevaLista({ ...nuevaLista, [e.target.name]: e.target.value });
   };
 
+
+
+
+
+
+   // 🔹 Aquí hacemos la inserción real
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🚀 handleSubmit disparado");
-    console.log("Payload que envío al backend:", { ...nuevaLista });
     try {
-      const listaInsertada = await insertarLista(nuevaLista);
-      setListas([...listas, listaInsertada]);
+
+    // Aseguramos que la fecha esté en formato ISO
+    const payload = {
+      ...nuevaLista,
+      Fecha: new Date(nuevaLista.Fecha).toISOString()
+    };
+
+      const dataInsertada = await insertarLista(nuevaLista);
+
+
+      // Refresca la lista desde Supabase
+      const dataActualizada = await obtenerListas();
+      setListas(dataActualizada);
+      
+
+      if (dataInsertada && dataInsertada.length > 0) {
+      // Actualizamos la tabla con el registro insertado
+      setListas((prev) => [...prev, ...dataInsertada]);
+      // Limpiamos el formulario
       setNuevaLista({
-        nombre: "",
-        descripcion: "",
-        fecha: "",
-        nota: "",
-        idUsuario: 1,
+        Nombre: "",
+        Descripcion: "",
+        Fecha: "",
+        Nota: "",
+        IdUsuario: 1,
       });
-    } catch (error) {
-      console.error("Error al insertar la lista:", error);
     }
-  };
 
-  //Funcion para eliminar
-  const handleEliminar = async () => {
-    try {
-      await eliminarLista(listaAEliminar.idLista);
-      setListas(listas.filter((l) => l.idLista !== listaAEliminar.idLista));
-      setShowModal(false);
-      setListaAEliminar(null);
+
     } catch (error) {
-      console.error("Error al eliminar la lista:", error);
+      console.error("Error al insertar lista:", error);
     }
   };
 
 
-  
+
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold mb-4">Registrar Nueva Lista</h1>
+
       {/* Formulario */}
-      <form className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 space-y-4 transition-colors"
+      <form
+        className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 space-y-4 transition-colors"
         onSubmit={handleSubmit}
       >
-        <input type="text" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
-          name="nombre" placeholder="Nombre" value={nuevaLista.nombre} onChange={handleChange} required />
+        <input
+          type="text"
+          name="Nombre"
+          placeholder="Nombre"
+          value={nuevaLista.Nombre}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
+          required
+        />
+        <input
+          type="text"
+          name="Descripcion"
+          placeholder="Descripción"
+          value={nuevaLista.Descripcion}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
+        />
+        <input
+          type="date"
+          name="Fecha"
+          value={nuevaLista.Fecha}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
+          required
+        />
+        <input
+          type="text"
+          name="Nota"
+          placeholder="Nota"
+          value={nuevaLista.Nota}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
+        />
 
-        <input type="text" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
-          name="descripcion" placeholder="Descripción" value={nuevaLista.descripcion} onChange={handleChange} />
-
-        <input type="date" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
-          name="fecha" value={nuevaLista.fecha} onChange={handleChange} required />
-
-        <input type="text" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600"
-          name="nota" placeholder="Nota" value={nuevaLista.nota} onChange={handleChange} />
-
-        
-        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition" >
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
           ➕ Agregar Lista
         </button>
       </form>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto bg-white dark:bg-gray-800 shadow-md rounded-lg transition-colors">
-        <table className="w-full table-auto border-collapse">
+      {/* Tabla de listas */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white dark:bg-gray-800 shadow-md rounded-lg">
           <thead>
-            <tr className="bg-gray-100 dark:bg-gray-700 text-center">
-              <th className="p-3 border-b dark:border-gray-600">ID</th>
-              <th className="p-3 border-b dark:border-gray-600">Nombre</th>
-              <th className="p-3 border-b dark:border-gray-600">Descripción</th>
-              <th className="p-3 border-b dark:border-gray-600">Fecha</th>
-              <th className="p-3 border-b dark:border-gray-600">Nota</th>
-              <th className="p-3 border-b dark:border-gray-600">Usuario</th>
-              <th className="p-3 border-b dark:border-gray-600">*</th>
+            <tr className="bg-gray-100 dark:bg-gray-700 text-left">
+              <th className="p-3 border-b dark:border-gray-600 text-center">ID</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">Nombre</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">Descripción</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">Fecha</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">Nota</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">Usuario</th>
             </tr>
           </thead>
           <tbody>
             {listas.map((lista) => (
-              <tr key={lista.idLista} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" >
-                <td className="p-3 border-b dark:border-gray-600">{lista.idLista}</td>
-                <td className="p-3 border-b dark:border-gray-600">{lista.nombre}</td>
-                <td className="p-3 border-b dark:border-gray-600">{lista.descripcion}</td>
-                <td className="p-3 border-b dark:border-gray-600">{new Date(lista.fecha).toLocaleDateString()}</td>
-                <td className="p-3 border-b dark:border-gray-600">{lista.nota}</td>
-                <td className="p-3 border-b dark:border-gray-600">{lista.usuario?.nombre || "Sin usuario"}</td>
-                <td className="p-3 border-b dark:border-gray-600 text-center space-x-3">
-                  <div className="flex justify-center space-x-3">
-
-                     {/* Ojo para solo Nota */}
-                    <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/editar/${lista.idLista}`)}>
-                      <EyeIcon className="h-5 w-5 text-blue-500 cursor-pointer" />
-                    </button>
-
-                    {/* Ojo para editar todos los campos */}
-                    <button className="text-green-600 hover:text-green-800" onClick={() => navigate(`/editar-lista/${lista.idLista}`)} >
-                      <EyeIcon className="h-5 w-5 text-green-500 cursor-pointer" />
-                    </button>
-
-                    
-
-                    {/* Botón eliminar */}
-                    <button className="text-red-600 hover:text-red-800" onClick={() =>{
-                                                                                            setShowModal(true);
-                                                                                            setListaAEliminar(lista);
-                                                                                          }}>
-                      <TrashIcon className="h-5 w-5 cursor-pointer" />
-                    </button>
-
-
-                    {/* Ojo para agregar detalle */}
-                    <button className="text-fuchsia-800 hover:text-fuchsia-900" onClick={() => navigate(`/add-detalle/${lista.idLista}`)} >
-                      <PlusIcon  className="h-5 w-5 text-fuchsia-700 cursor-pointer" />
-                    </button>
-
-                    {/* Ojo para ver detalles de la lista */}
-                    <button className="text-indigo-600 hover:text-indigo-800" onClick={() => navigate(`/ver-detalle/${lista.idLista}`)} >
-                      <EyeIcon className="h-5 w-5 text-indigo-500 cursor-pointer" />
-                    </button>
-
-
-
-
-                  </div>
-                  
-
-                </td>
+              <tr
+                key={lista.IdLista}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <td className="p-3 border-b dark:border-gray-600">{lista.IdLista}</td>
+                <td className="p-3 border-b dark:border-gray-600">{lista.Nombre}</td>
+                <td className="p-3 border-b dark:border-gray-600">{lista.Descripcion || "Sin descripción"}</td>
+                <td className="p-3 border-b dark:border-gray-600">{new Date(lista.Fecha).toLocaleDateString()}</td>
+                <td className="p-3 border-b dark:border-gray-600">{lista.Nota || "Sin nota"}</td>
+                <td className="p-3 border-b dark:border-gray-600">{lista.IdUsuario}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-
-
-      <ConfirmModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={handleEliminar}
-      />
-
-
-
     </div>
   );
 }

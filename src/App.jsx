@@ -28,10 +28,10 @@ function App() {
         {/* Rutas de la app */}
         <Routes>
           <Route path="/" element={<ListaCompras />} />
-          <Route path="/editar/:id" element={<EditarNota />} />
+          {/* <Route path="/editar/:id" element={<EditarNota />} />
           <Route path="/editar-lista/:id" element={<EditarLista />} /> 
           <Route path="/ver-detalle/:idLista" element={<DetallesLista />} />
-          <Route path="/add-detalle/:idLista" element={<AddDetalle />} />  
+          <Route path="/add-detalle/:idLista" element={<AddDetalle />} />   */}
         </Routes>
       </div>
     </BrowserRouter>
