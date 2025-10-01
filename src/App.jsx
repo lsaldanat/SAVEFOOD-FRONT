@@ -11,7 +11,7 @@ import EditarLista from "./components/EditarLista";
 
 
  import DetallesLista from "./components/DetallesLista"; // 👈
- import AddDetalle from "./components/AddDetalle"; // 👈 crea este component
+ //import AddDetalle from "./components/AddDetalle"; // 👈 crea este component
 
 
 
@@ -28,6 +28,7 @@ function App() {
         {/* Rutas de la app */}
         <Routes>
           <Route path="/" element={<ListaCompras />} />
+          <Route path="/detalles/:IdLista" element={<DetallesLista />} />
           {/* <Route path="/editar/:id" element={<EditarNota />} />
           <Route path="/editar-lista/:id" element={<EditarLista />} /> 
           <Route path="/ver-detalle/:idLista" element={<DetallesLista />} />

@@ -1,37 +1,99 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef  } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 
-import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
+// import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
+import { obtenerDetallexLista, insertarDetallexLista   } from "../services/detalleService";
+
 
 export default function DetallesLista() {
-  const { idLista } = useParams();
+  const { IdLista } = useParams();
+  const [detalles, setDetalles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const [detalles, setDetalles] = useState([]);
+  const [nuevoDetalle, setNuevoDetalle] = useState({
+      Producto: "",
+      Descripcion: "",
+      Cantidad: 1,
+      Unidades: "",
+      Precio: 0,
+      FechaVencimiento: "",
+      IsComprado: false,
+      IdCategoria: 1
+    });
+
 
   useEffect(() => {
+    let isMounted = true;
 
     async function fetchData() {
       try {
-        const data = await obtenerDetallesPorLista(idLista);
-        setDetalles(data);
+        const data = await obtenerDetallexLista(IdLista);
+        if (isMounted) {
+          setDetalles(data);
+          setLoading(false);
+        }
       } catch (error) {
-        console.error("❌ Error al obtener detalles:", error);
+        console.error("Error en fetchData:", error);
       }
     }
-    fetchData();
-  }, [idLista]);
 
-  const handleEliminar = async (idDetalle) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
+    fetchData();
+
+    return () => {
+      isMounted = false; // 👈 evita actualizar estado tras desmontar
+    };
+}, [IdLista]);
+
+
+
+const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setNuevoDetalle(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await eliminarDetalle(idDetalle);
-      setDetalles(detalles.filter((d) => d.idDetalle !== idDetalle));
+      const detalleConLista = { ...nuevoDetalle, IdLista: parseInt(IdLista) };
+      await insertarDetallexLista(detalleConLista);
+      
+      // Refresca todos los detalles
+      const dataActualizada = await obtenerDetallexLista(IdLista);
+      setDetalles(dataActualizada);
+
+      setNuevoDetalle({
+        Producto: "",
+        Descripcion: "",
+        Cantidad: 1,
+        Unidades: "",
+        Precio: 0,
+        FechaVencimiento: "",
+        IsComprado: false,
+        IdCategoria: 1
+      });
     } catch (error) {
-      console.error("❌ Error al eliminar detalle:", error);
+      console.error("Error al agregar detalle:", error);
     }
   };
+
+
+ if (loading) return <p>Cargando...</p>;
+
+  // const handleEliminar = async (idDetalle) => {
+  //   if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
+  //   try {
+  //     await eliminarDetalle(idDetalle);
+  //     setDetalles(detalles.filter((d) => d.idDetalle !== idDetalle));
+  //   } catch (error) {
+  //     console.error("❌ Error al eliminar detalle:", error);
+  //   }
+  // };
 
 //   const handleMarcarComprado = async (idDetalle) => {
 //     try {
@@ -48,15 +110,59 @@ export default function DetallesLista() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h2 className="text-2xl font-semibold">🛒 Detalles de la Lista #{idLista}</h2>
+      <div className="flex justify-between items-center">
+        {/* BOTÓN VOLVER */}
+        <button onClick={() => navigate("/")} // ajusta la ruta a la de tu lista de compras
+          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition" >
+          ← Volver
+        </button>
 
-      {/* Botón para agregar detalle */}
-      <button
-        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
-        onClick={() => navigate(`/add-detalle/${idLista}`)}
-      >
-        <PlusIcon className="h-5 w-5" /> Agregar Producto
-      </button>
+
+        <h2 className="text-2xl font-semibold text-center">🛒 Detalles de la Lista #{IdLista}</h2>
+        
+        {/* div vacío a la derecha para balancear el flex */}
+        <div className="w-24"></div>
+        
+      </div>
+      
+      {/* FORMULARIO PARA AGREGAR DETALLE */}
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md" >
+        <input type="text" name="Producto" placeholder="Producto" value={nuevoDetalle.Producto} onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+          required />
+
+        <input type="text" name="Descripcion" placeholder="Descripción" value={nuevoDetalle.Descripcion} onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+        />
+
+        <input type="number" name="Cantidad" placeholder="Cantidad" value={nuevoDetalle.Cantidad} onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+        />
+
+        <input type="text" name="Unidades" placeholder="Unidades" value={nuevoDetalle.Unidades} onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+        />
+
+        <input type="number" name="Precio" placeholder="Precio" value={nuevoDetalle.Precio} min={0} step="0.01" onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+        />
+
+        <input type="date" name="FechaVencimiento" value={nuevoDetalle.FechaVencimiento} onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+        />
+
+        <div className="flex items-center gap-2">
+          <input type="checkbox" name="IsComprado" checked={nuevoDetalle.IsComprado} onChange={handleChange} 
+          className="w-4 h-4 accent-blue-500" />
+          <label className="text-black dark:text-white">Comprado</label>
+        </div>
+
+        <button type="submit" className="col-span-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" >
+          ➕ Agregar Detalle
+        </button>
+      </form>
+
+      
 
       {/* Tabla de detalles */}
       <div className="overflow-x-auto bg-white dark:bg-gray-800 shadow-md rounded-lg transition-colors">
@@ -76,14 +182,14 @@ export default function DetallesLista() {
           <tbody>
             {detalles.length > 0 ? (
               detalles.map((detalle) => (
-                <tr key={detalle.idDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.producto}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.descripcion}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.cantidad}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.unidades}</td>
-                  <td className="p-3 border-b dark:border-gray-600">S/. {detalle.precio?.toFixed(2)}</td>
+                <tr key={detalle.IdDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
+                  <td className="p-3 border-b dark:border-gray-600">{detalle.Producto}</td>
+                  <td className="p-3 border-b dark:border-gray-600">{detalle.Descripcion}</td>
+                  <td className="p-3 border-b dark:border-gray-600">{detalle.Cantidad}</td>
+                  <td className="p-3 border-b dark:border-gray-600">{detalle.Unidades}</td>
+                  <td className="p-3 border-b dark:border-gray-600">S/. {detalle.Precio?.toFixed(2)}</td>
                   <td className="p-3 border-b dark:border-gray-600">
-                    {detalle.fechaVencimiento ? new Date(detalle.fechaVencimiento).toLocaleDateString() : "-"}
+                    {detalle.FechaVencimiento ? new Date(detalle.FechaVencimiento).toLocaleDateString() : "-"}
                   </td>
                   <td className="p-3 border-b dark:border-gray-600"> 
                     {detalle.isComprado ? (
@@ -119,3 +225,7 @@ export default function DetallesLista() {
   );
 
 }
+
+
+
+

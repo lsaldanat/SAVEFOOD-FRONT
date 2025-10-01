@@ -1,4 +1,4 @@
-import AddDetalle from "../components/AddDetalle";
+//import AddDetalle from "../components/AddDetalle";
 import { supabase } from "../lib/supabaseClient";
 //const API_URL = "https://localhost:7224/api/ListaDeCompras"; // tu endpoint
 
