@@ -45,24 +45,19 @@ export default function ListaCompras() {
     e.preventDefault();
     try {
 
-    // Aseguramos que la fecha esté en formato ISO
-    const payload = {
-      ...nuevaLista,
-      Fecha: new Date(nuevaLista.Fecha).toISOString()
-    };
+      // Aseguramos que la fecha esté en formato ISO
+      const payload = {
+        ...nuevaLista,
+        Fecha: new Date(nuevaLista.Fecha).toISOString()
+      };
 
-      const dataInsertada = await insertarLista(nuevaLista);
-
+      const dataInsertada = await insertarLista(payload);
 
       // Refresca la lista desde Supabase
       const dataActualizada = await obtenerListas();
       setListas(dataActualizada);
       
-
-      if (dataInsertada && dataInsertada.length > 0) {
-      // Actualizamos la tabla con el registro insertado
-      setListas((prev) => [...prev, ...dataInsertada]);
-      // Limpiamos el formulario
+      // Limpiar formulario
       setNuevaLista({
         Nombre: "",
         Descripcion: "",
@@ -70,7 +65,8 @@ export default function ListaCompras() {
         Nota: "",
         IdUsuario: 1,
       });
-    }
+      
+    
 
 
     } catch (error) {
@@ -93,7 +89,7 @@ export default function ListaCompras() {
         <input type="text" name="Descripcion" placeholder="Descripción" value={nuevaLista.Descripcion} onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" />
         
-        <input type="date" name="Fecha" value={nuevaLista.Fecha} onChange={handleChange}
+        <input type="date" name="Fecha" value={nuevaLista.Fecha || ''} onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" required />
         
         <input type="text" name="Nota" placeholder="Nota" value={nuevaLista.Nota} onChange={handleChange}

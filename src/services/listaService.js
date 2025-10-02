@@ -39,7 +39,8 @@ export async function insertarLista(lista) {
   const { data, error } = await supabase
     .from("ListaDeCompras")
     .insert([lista]) // Supabase espera un array
-
+    .select()
+    
   if (error) {
     console.error("Error al insertar lista:", error)
     throw error
