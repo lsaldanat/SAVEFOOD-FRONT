@@ -214,7 +214,11 @@ export default function ListaCompras() {
                 <td className="p-2 text-center border-b dark:border-gray-600">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <button className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition">
+                      <button 
+                        className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition"
+                         onClick={(e) => e.stopPropagation()} // 👈 evita navigate al abrir el dialog
+                        >
+
                         <Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
                       </button>
                     </AlertDialogTrigger>
@@ -229,8 +233,11 @@ export default function ListaCompras() {
                       </AlertDialogHeader>
 
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => handleDelete(lista.IdLista)} >
+                        <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction className="bg-red-600 hover:bg-red-700" 
+                        onClick={(e) => {
+                        e.stopPropagation(); // 👈 evita que se dispare el navigate
+                        handleDelete(lista.IdLista);}} >
                           Eliminar
                         </AlertDialogAction>
                       </AlertDialogFooter>
