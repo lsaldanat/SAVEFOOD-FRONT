@@ -92,6 +92,7 @@ export async function obtenerDetallexLista(IdLista) {
       .from("DetalleCompra")
       .select("*")
       .eq("IdLista", IdLista)
+      .order("IdDetalle", { ascending: true });
       
 
     if (error) {

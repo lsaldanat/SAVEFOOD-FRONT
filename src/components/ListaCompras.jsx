@@ -7,10 +7,11 @@ import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+// DatePickerModern
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+
 
 
 import {
@@ -24,6 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+
+
 
 
 export function DatePickerModern({ value, onChange }) {
@@ -186,7 +189,7 @@ export default function ListaCompras() {
               <th className="p-3 border-b dark:border-gray-600 text-center">#</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Nombre</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Descripción</th>
-              <th className="p-3 border-b dark:border-gray-600 text-center">Fecha</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">Fecha de Compra</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Nota</th>
               {/* <th className="p-3 border-b dark:border-gray-600 text-center">Usuario</th> */}
               <th className="p-3 border-b dark:border-gray-600 text-center">*</th>

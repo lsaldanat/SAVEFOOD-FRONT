@@ -6,6 +6,14 @@ import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outlin
 import { obtenerListaPorId } from "../services/listaService"; // 👈 importar
 import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId   } from "../services/detalleService";
 
+import { obtenerUnidadMedidas } from "../services/UnidadMedida"; // 👈 importar
+
+
+// DatePickerModern
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 
 import { Plus, Trash } from "lucide-react";
 import {
@@ -20,22 +28,52 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+export function DatePickerModern({ value, onChange }) {
+  
+  const [date, setDate] = useState(value ? new Date(value) : new Date());
+
+  // 🔹 Si cambia "value" desde el padre, sincronizar con el estado local
+  useEffect(() => {
+    setDate(value ? new Date(value) : new Date());
+  }, [value]);
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+         <button type="button" className="w-full px-4 py-2 border rounded-lg text-left focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" >
+          {date ? format(date, "dd/MM/yyyy") : "Seleccionar fecha"}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar mode="single" selected={date} 
+        onSelect={(d) => {
+                            setDate(d);
+                            onChange(d);
+                          }}
+          initialFocus />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+
 export default function DetallesLista() {
   const { IdLista } = useParams();
   const [detalles, setDetalles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [listaInfo, setListaInfo] = useState(null); // 👈 nombre de la lista
+  const [unidadesMedida, setUnidadesMedida] = useState([]); // 👈 estado global en el componente
   const navigate = useNavigate();
 
   const [nuevoDetalle, setNuevoDetalle] = useState({
       Producto: "",
       Descripcion: "",
-      Cantidad: 1,
-      Unidades: "",
-      Precio: 0,
-      FechaVencimiento: "",
-      IsComprado: false,
-      IdCategoria: 1
+      Cantidad: null,
+      UnidadMedida: 4,
+      Precio: null,
+      FechaVencimiento: new Date().setHours(0, 0, 0, 0),
+      IsComprado: false
     });
 
 
@@ -48,9 +86,13 @@ export default function DetallesLista() {
         const data = await obtenerDetallexLista(IdLista);
          // obtener nombre de la lista
         const lista = await obtenerListaPorId(IdLista);
+
+        const unidades  = await obtenerUnidadMedidas();
+
         if (isMounted) {
           setDetalles(data);
           setListaInfo(lista); // 👉 aquí ya tendrás {IdLista, Nombre, Descripcion, Fecha, Nota...}
+          setUnidadesMedida(unidades); // 👈 carga las unidades de medida
           setLoading(false);
         }
       } catch (error) {
@@ -80,6 +122,7 @@ const handleChange = (e) => {
     e.preventDefault();
     try {
       const detalleConLista = { ...nuevoDetalle, IdLista: parseInt(IdLista) };
+      
       await insertarDetallexLista(detalleConLista);
       
       // Refresca todos los detalles
@@ -89,12 +132,11 @@ const handleChange = (e) => {
       setNuevoDetalle({
         Producto: "",
         Descripcion: "",
-        Cantidad: 1,
-        Unidades: "",
-        Precio: 0,
-        FechaVencimiento: "",
-        IsComprado: false,
-        IdCategoria: 1
+        Cantidad: null,
+        UnidadMedida: 4,
+        Precio: null,
+        FechaVencimiento: new Date().setHours(0, 0, 0, 0),
+        IsComprado: false
       });
     } catch (error) {
       console.error("Error al agregar detalle:", error);
@@ -162,39 +204,36 @@ const handleChange = (e) => {
       
       {/* FORMULARIO PARA AGREGAR DETALLE */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md" >
-        <input type="text" name="Producto" placeholder="Producto" value={nuevoDetalle.Producto} onChange={handleChange}
+        
+        <input type="text" name="Producto" placeholder="Producto" value={nuevoDetalle.Producto ?? ""} onChange={handleChange}
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
           required />
 
-        <input type="text" name="Descripcion" placeholder="Descripción" value={nuevoDetalle.Descripcion} onChange={handleChange}
+        <input type="text" name="Descripcion" placeholder="Descripción" value={nuevoDetalle.Descripcion ?? ""} onChange={handleChange}
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
         />
 
-        <input type="number" name="Cantidad" placeholder="Cantidad" value={nuevoDetalle.Cantidad} onChange={handleChange}
+        <DatePickerModern value={nuevoDetalle.FechaVencimiento} onChange={(nuevaFecha) => setNuevoDetalle({ ...nuevoDetalle, FechaVencimiento: nuevaFecha })} required />
+
+        <input type="number" name="Cantidad" placeholder="Cantidad" value={nuevoDetalle.Cantidad ?? ""} onChange={handleChange}
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
         />
 
-        <input type="text" name="Unidades" placeholder="Unidades" value={nuevoDetalle.Unidades} onChange={handleChange}
+        <select name="UnidadMedida" value={nuevoDetalle.UnidadMedida} onChange={handleChange}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600">
+          {unidadesMedida.map((um) => (
+            <option key={um.id} value={um.id}>{um.descripcion}</option>
+          ))}
+        </select>
+
+        <input type="number" name="Precio" placeholder="Precio" value={nuevoDetalle.Precio ?? ""} min={0} step="0.01" onChange={handleChange}
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
         />
-
-        <input type="number" name="Precio" placeholder="Precio" value={nuevoDetalle.Precio} min={0} step="0.01" onChange={handleChange}
-          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
-        />
-
-        <input type="date" name="FechaVencimiento" value={nuevoDetalle.FechaVencimiento} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
-        />
-
-        <div className="flex items-center gap-2">
-          <input type="checkbox" name="IsComprado" checked={nuevoDetalle.IsComprado} onChange={handleChange} 
-          className="w-4 h-4 accent-blue-500" />
-          <label className="text-black dark:text-white">Comprado</label>
-        </div>
 
         <button type="submit" className="col-span-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" >
           ➕ Agregar Detalle
         </button>
+
       </form>
 
       
@@ -204,10 +243,11 @@ const handleChange = (e) => {
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 dark:bg-gray-700 text-center">
+              <th className="p-3 border-b dark:border-gray-600">*</th>
               <th className="p-3 border-b dark:border-gray-600">Producto</th>
               <th className="p-3 border-b dark:border-gray-600">Descripción</th>
               <th className="p-3 border-b dark:border-gray-600">Cantidad</th>
-              <th className="p-3 border-b dark:border-gray-600">Unidades</th>
+              <th className="p-3 border-b dark:border-gray-600">U.M.</th>
               <th className="p-3 border-b dark:border-gray-600">Precio</th>
               <th className="p-3 border-b dark:border-gray-600">Vencimiento</th>
               <th className="p-3 border-b dark:border-gray-600">Estado</th>
@@ -219,11 +259,24 @@ const handleChange = (e) => {
             {detalles.length > 0 ? (
               detalles.map((detalle) => (
                 <tr key={detalle.IdDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
+                  <td className="p-3 border-b dark:border-gray-600 text-center">
+                    <input type="checkbox" />
+                  </td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.Producto}</td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.Descripcion}</td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.Cantidad}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.Unidades}</td>
-                  <td className="p-3 border-b dark:border-gray-600">S/. {detalle.Precio?.toFixed(2)}</td>
+                  <td className="p-3 border-b dark:border-gray-600">{unidadesMedida.find(um => um.id == detalle.UnidadMedida).descripcion }</td>
+                  <td className="p-3 border-b dark:border-gray-600">
+                    {detalle.Precio != null
+                      ? new Intl.NumberFormat("es-PE", {
+                          style: "currency",
+                          currency: "PEN",
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        }).format(detalle.Precio)
+                      : "-"}
+                  </td>
+
                   <td className="p-3 border-b dark:border-gray-600">
                     {detalle.FechaVencimiento ? new Date(detalle.FechaVencimiento).toLocaleDateString() : "-"}
                   </td>
@@ -234,8 +287,6 @@ const handleChange = (e) => {
                       <span className="text-red-600 font-semibold">Pendiente</span>
                     )}
                   </td>
-                  
-
 
                 <td className="p-2 text-center border-b dark:border-gray-600">
                   <AlertDialog>
