@@ -188,27 +188,27 @@ export default function ListaCompras() {
               <th className="p-3 border-b dark:border-gray-600 text-center">Descripción</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Fecha</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Nota</th>
-              <th className="p-3 border-b dark:border-gray-600 text-center">Usuario</th>
-              <th className="p-3 border-b dark:border-gray-600 text-center">*</th>
+              {/* <th className="p-3 border-b dark:border-gray-600 text-center">Usuario</th> */}
               <th className="p-3 border-b dark:border-gray-600 text-center">*</th>
             </tr>
           </thead>
           <tbody>
             {listas.map((lista, index) => (
-              <tr key={lista.IdLista} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <tr key={lista.IdLista} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" 
+              onClick={() => navigate(`/detalles/${lista.IdLista}`)}>
                 <td className="p-3 border-b dark:border-gray-600">{index + 1 }</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nombre}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Descripcion || "Sin descripción"}</td>
                 <td className="p-3 border-b dark:border-gray-600">{format(new Date(lista.Fecha + "T00:00:00"), "dd/MM/yyyy")}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nota || "Sin nota"}</td>
-                <td className="p-3 border-b dark:border-gray-600">{lista.IdUsuario}</td>
+                {/* <td className="p-3 border-b dark:border-gray-600">{lista.IdUsuario}</td> */}
                 
-                <td className="p-2 text-center border-b dark:border-gray-600">
+                {/* <td className="p-2 text-center border-b dark:border-gray-600">
                   <button onClick={() => navigate(`/detalles/${lista.IdLista}`)}
                     className="p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-900 transition">
                     <Plus className="h-5 w-5 text-green-600 hover:text-green-800" />
                   </button>
-                </td>
+                </td> */}
 
                 
                 <td className="p-2 text-center border-b dark:border-gray-600">

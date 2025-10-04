@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 // import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
+import { obtenerListaPorId } from "../services/listaService"; // 👈 importar
 import { obtenerDetallexLista, insertarDetallexLista   } from "../services/detalleService";
 
 
@@ -10,6 +11,7 @@ export default function DetallesLista() {
   const { IdLista } = useParams();
   const [detalles, setDetalles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listaInfo, setListaInfo] = useState(null); // 👈 nombre de la lista
   const navigate = useNavigate();
 
   const [nuevoDetalle, setNuevoDetalle] = useState({
@@ -29,9 +31,13 @@ export default function DetallesLista() {
 
     async function fetchData() {
       try {
+         // obtener detalles
         const data = await obtenerDetallexLista(IdLista);
+         // obtener nombre de la lista
+        const lista = await obtenerListaPorId(IdLista);
         if (isMounted) {
           setDetalles(data);
+          setListaInfo(lista); // 👉 aquí ya tendrás {IdLista, Nombre, Descripcion, Fecha, Nota...}
           setLoading(false);
         }
       } catch (error) {
@@ -118,12 +124,17 @@ const handleChange = (e) => {
         </button>
 
 
-        <h2 className="text-2xl font-semibold text-center">🛒 Detalles de la Lista #{IdLista}</h2>
+        <h2 className="text-2xl font-semibold text-center">📋 Detalles de la Lista de: {" "}
+          <span className="text-blue-600 dark:text-blue-400">{listaInfo.Nombre}</span>
+        </h2>
         
         {/* div vacío a la derecha para balancear el flex */}
         <div className="w-24"></div>
         
       </div>
+
+    
+
       
       {/* FORMULARIO PARA AGREGAR DETALLE */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md" >

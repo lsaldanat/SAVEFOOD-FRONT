@@ -63,7 +63,7 @@ export async function obtenerListaPorId(id) {
 const { data, error } = await supabase
     .from("ListaDeCompras")
     .select("*")
-    .eq("IdLista", id)
+    .eq("IdLista", Number(id)) // 👈 forzar a número por seguridad
     .single()
 
   if (error) {
