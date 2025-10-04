@@ -4,10 +4,10 @@ import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outlin
 
 // import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
 import { obtenerListaPorId } from "../services/listaService"; // 👈 importar
-import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId   } from "../services/detalleService";
+import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId, actualizarIsComprado   } from "../services/detalleService";
 
 import { obtenerUnidadMedidas } from "../services/UnidadMedida"; // 👈 importar
-
+import { Checkbox } from "@/components/ui/checkbox"
 
 // DatePickerModern
 import { format } from "date-fns";
@@ -152,6 +152,22 @@ const handleChange = (e) => {
         console.error("Error al eliminar el detalle: " + id, error);
       }
     };
+
+    // 🔹 Actualizar el estado del comprado
+    const handleUpdateIsComprado  = async (id, isComprado) => {
+      try {
+        await actualizarIsComprado(id, isComprado);
+        setDetalles((prev) =>
+          prev.map((detalle) =>
+            detalle.IdDetalle === id
+              ? { ...detalle, IsComprado: isComprado } // 🔹 actualiza solo el campo cambiado
+              : detalle
+          )
+        );
+      } catch (error) {
+        console.error("Error al eliminar el detalle: " + id, error);
+      }
+    };
     
 
 
@@ -259,9 +275,18 @@ const handleChange = (e) => {
             {detalles.length > 0 ? (
               detalles.map((detalle) => (
                 <tr key={detalle.IdDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
+                  
+
                   <td className="p-3 border-b dark:border-gray-600 text-center">
-                    <input type="checkbox" />
+                    <Checkbox
+                      checked={detalle.IsComprado} // 🔹 valor actual del estado
+                      onCheckedChange={(checked) =>
+                        handleUpdateIsComprado(detalle.IdDetalle, checked)
+                      }
+                    />
                   </td>
+
+
                   <td className="p-3 border-b dark:border-gray-600">{detalle.Producto}</td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.Descripcion}</td>
                   <td className="p-3 border-b dark:border-gray-600">{detalle.Cantidad}</td>
@@ -281,7 +306,7 @@ const handleChange = (e) => {
                     {detalle.FechaVencimiento ? new Date(detalle.FechaVencimiento).toLocaleDateString() : "-"}
                   </td>
                   <td className="p-3 border-b dark:border-gray-600"> 
-                    {detalle.isComprado ? (
+                    {detalle.IsComprado ? (
                       <span className="text-green-600 font-semibold">✔ Comprado</span>
                     ) : (
                       <span className="text-red-600 font-semibold">Pendiente</span>

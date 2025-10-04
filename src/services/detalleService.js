@@ -139,6 +139,25 @@ const { error } = await supabase
     console.error("Error al eliminar el detalle: " + Id, error)
     throw error
   }
+}
 
+
+
+
+//Actualizar isComprado por detalle
+export async function actualizarIsComprado(id, isComprado) {
+  
+  const { data, error } = await supabase
+    .from("DetalleCompra")
+    .update({ IsComprado: isComprado }) // 👈 asegúrate que el campo en la BD esté con la misma mayúscula/minúscula
+    .eq("IdDetalle", id)
+    .select() // devuelve el registro actualizado (opcional)
+
+  if (error) {
+    console.error("❌ Error al actualizar IsComprado:", error)
+    throw error
+  }
+
+  return data?.[0] ?? null // devuelve el registro actualizado o null si no hay
 
 }
