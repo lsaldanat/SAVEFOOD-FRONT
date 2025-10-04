@@ -1,15 +1,30 @@
 import { useEffect, useState } from "react";
-import { obtenerListas, insertarLista  } from "../services/listaService";
+import { obtenerListas, insertarLista, eliminarLista  } from "../services/listaService";
 
-import { Plus } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 export default function ListaCompras() {
 
   const navigate = useNavigate();
   const [listas, setListas] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 👈 estado para controlar el envío
+
+
 
   const [nuevaLista, setNuevaLista] = useState({
     Nombre: "",
@@ -43,6 +58,10 @@ export default function ListaCompras() {
    // 🔹 Aquí hacemos la inserción real
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isSubmitting) return; // evita clicks dobles
+    setIsSubmitting(true); // 🔹 deshabilita el botón
+
     try {
 
       // Aseguramos que la fecha esté en formato ISO
@@ -71,9 +90,20 @@ export default function ListaCompras() {
 
     } catch (error) {
       console.error("Error al insertar lista:", error);
+    }finally {
+      setIsSubmitting(false); // 🔹 vuelve a habilitar el botón
     }
   };
 
+    // 🔹 Eliminar
+  const handleDelete = async (id) => {
+    try {
+      await eliminarLista(id);
+      setListas((prev) => prev.filter((lista) => lista.IdLista !== id)); // refresca el estado sin hacer otra query
+    } catch (error) {
+      console.error("Error al eliminar lista:", error);
+    }
+  };
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -95,8 +125,14 @@ export default function ListaCompras() {
         <input type="text" name="Nota" placeholder="Nota" value={nuevaLista.Nota} onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" />
 
-        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition" >
-          ➕ Agregar Lista
+        <button type="submit" disabled={isSubmitting} 
+          className={`px-6 py-2 rounded-lg text-white transition 
+            ${isSubmitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+              }
+              `}>
+        {isSubmitting ? "⏳ Guardando..." : "➕ Agregar Lista"}
         </button>
     
       </form>
@@ -106,38 +142,64 @@ export default function ListaCompras() {
         <table className="min-w-full bg-white dark:bg-gray-800 shadow-md rounded-lg">
           <thead>
             <tr className="bg-gray-100 dark:bg-gray-700 text-left">
-              <th className="p-3 border-b dark:border-gray-600 text-center">ID</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">#</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Nombre</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Descripción</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Fecha</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Nota</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">Usuario</th>
               <th className="p-3 border-b dark:border-gray-600 text-center">*</th>
+              <th className="p-3 border-b dark:border-gray-600 text-center">*</th>
             </tr>
           </thead>
           <tbody>
-            {listas.map((lista) => (
+            {listas.map((lista, index) => (
               <tr key={lista.IdLista} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <td className="p-3 border-b dark:border-gray-600">{lista.IdLista}</td>
+                <td className="p-3 border-b dark:border-gray-600">{index + 1 }</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nombre}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Descripcion || "Sin descripción"}</td>
                 <td className="p-3 border-b dark:border-gray-600">{new Date(lista.Fecha).toLocaleDateString()}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nota || "Sin nota"}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.IdUsuario}</td>
-                <td className="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900 transition">
-                  <button onClick={() => navigate(`/detalles/${lista.IdLista}`)}>
+                
+                <td className="p-2 text-center border-b dark:border-gray-600">
+                  <button onClick={() => navigate(`/detalles/${lista.IdLista}`)}
+                    className="p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-900 transition">
                     <Plus className="h-5 w-5 text-green-600 hover:text-green-800" />
                   </button>
-                
-                {/* Tooltip */}
-                <span className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1">
-                  Agregar el detalle +
-                </span>
-                
-                
                 </td>
+
+                
+                <td className="p-2 text-center border-b dark:border-gray-600">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition">
+                        <Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
+                      </button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar lista?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Estás a punto de eliminar <span className="font-semibold">{lista.Nombre}</span>. 
+                          Esta acción no se puede deshacer.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => handleDelete(lista.IdLista)} >
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </td>
+                
               </tr>
             ))}
+
           </tbody>
         </table>
       </div>

@@ -14,7 +14,8 @@ export async function obtenerListas() {
   // }
    const { data, error } = await supabase
     .from("ListaDeCompras")
-    .select("*");
+    .select("*")
+    .order("IdLista", { ascending: true }); // 👈 aquí fuerzas el orden
 
   if (error) throw error;
   return data;
