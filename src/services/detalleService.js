@@ -122,3 +122,22 @@ export async function insertarDetallexLista(detalle) {
   }
   return data
 }
+
+
+
+//Eliminar un detalle
+export async function eliminarDetallexId(Id) {
+ 
+const { error } = await supabase
+  .from('DetalleCompra')
+  .delete()
+  .eq('IdDetalle', Id)
+
+
+   if (error) {
+    console.error("Error al eliminar el detalle: " + Id, error)
+    throw error
+  }
+
+
+}

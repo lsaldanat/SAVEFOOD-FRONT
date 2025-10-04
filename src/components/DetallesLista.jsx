@@ -4,8 +4,21 @@ import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outlin
 
 // import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
 import { obtenerListaPorId } from "../services/listaService"; // 👈 importar
-import { obtenerDetallexLista, insertarDetallexLista   } from "../services/detalleService";
+import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId   } from "../services/detalleService";
 
+
+import { Plus, Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function DetallesLista() {
   const { IdLista } = useParams();
@@ -88,8 +101,19 @@ const handleChange = (e) => {
     }
   };
 
+    // 🔹 Eliminar
+    const handleDelete = async (id) => {
+      try {
+        await eliminarDetallexId(id);
+        setDetalles((prev) => prev.filter((detalle) => detalle.IdDetalle !== id)); // refresca el estado sin hacer otra query
+      } catch (error) {
+        console.error("Error al eliminar el detalle: " + id, error);
+      }
+    };
+    
 
- if (loading) return <p>Cargando...</p>;
+
+  if (loading) return <p>Cargando...</p>;
 
   // const handleEliminar = async (idDetalle) => {
   //   if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
@@ -187,6 +211,7 @@ const handleChange = (e) => {
               <th className="p-3 border-b dark:border-gray-600">Precio</th>
               <th className="p-3 border-b dark:border-gray-600">Vencimiento</th>
               <th className="p-3 border-b dark:border-gray-600">Estado</th>
+              {/* <th className="p-3 border-b dark:border-gray-600">*</th> */}
               <th className="p-3 border-b dark:border-gray-600">*</th>
             </tr>
           </thead>
@@ -209,22 +234,49 @@ const handleChange = (e) => {
                       <span className="text-red-600 font-semibold">Pendiente</span>
                     )}
                   </td>
-                  <td className="p-3 border-b dark:border-gray-600 text-center">
-                    {/* Marcar comprado */}
-                    <button className="text-green-600 hover:text-green-800" onClick={() => handleMarcarComprado(detalle.idDetalle)} >
-                      <CheckCircleIcon className="h-5 w-5 cursor-pointer" />
-                    </button>
+                  
 
-                    {/* Eliminar */}
-                    <button className="text-red-600 hover:text-red-800" onClick={() => handleEliminar(detalle.idDetalle)} >
-                      <TrashIcon className="h-5 w-5 cursor-pointer" />
-                    </button>
-                  </td>
+
+                <td className="p-2 text-center border-b dark:border-gray-600">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button 
+                        className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition"
+                         onClick={(e) => e.stopPropagation()} // 👈 evita navigate al abrir el dialog
+                        >
+
+                        <Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
+                      </button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar lista?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Estás a punto de eliminar <span className="font-semibold">{detalle.Producto}</span>. 
+                          Esta acción no se puede deshacer.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction className="bg-red-600 hover:bg-red-700" 
+                        onClick={(e) => {
+                        e.stopPropagation(); // 👈 evita que se dispare el navigate
+                        handleDelete(detalle.IdDetalle);}} >
+                          Eliminar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </td>
+
+
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="p-4 text-center text-gray-500">
+                <td colSpan="9" className="p-4 text-center text-gray-500">
                   No hay productos en esta lista
                 </td>
               </tr>
