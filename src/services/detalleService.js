@@ -165,18 +165,26 @@ export async function actualizarIsComprado(id, isComprado) {
 
 export async function actualizarDetallexId(id, detalle) {
   
-  const { data, error } = await supabase
-    .from("DetalleCompra")
-    .update(detalle) // 👈 asegúrate que los campos en la BD estén con la misma mayúscula/minúscula
-    .eq("IdDetalle", id)
-    .select() // devuelve el registro actualizado (opcional)
+ try {
+    // Extraemos IsComprado para no tocarlo
+    const { IsComprado, ...camposAModificar } = detalle;
 
-  if (error) {
-    console.error("❌ Error al actualizar IsComprado:", error)
-    throw error
+    const { data, error } = await supabase
+      .from("DetalleCompra")
+      .update(camposAModificar) // solo los campos que queremos actualizar
+      .eq("IdDetalle", id)
+      .select(); // devuelve el registro actualizado (opcional)
+
+    if (error) {
+      console.error("❌ Error al actualizar detalle:", error);
+      throw error;
+    }
+
+    return data?.[0] ?? null; // devuelve el registro actualizado o null
+  } catch (err) {
+    console.error("⚠️ Error inesperado en actualizarDetallexId:", err);
+    throw err;
   }
-
-  return data?.[0] ?? null // devuelve el registro actualizado o null si no hay
 
 
 }
