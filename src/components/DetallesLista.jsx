@@ -240,6 +240,8 @@ export default function DetallesLista() {
   const [unidadesMedida, setUnidadesMedida] = useState([]); // 👈 estado global en el componente
   const navigate = useNavigate();
 
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [nuevoDetalle, setNuevoDetalle] = useState({
       Producto: "",
       Descripcion: "",
@@ -249,6 +251,15 @@ export default function DetallesLista() {
       FechaVencimiento: new Date().setHours(0, 0, 0, 0),
       IsComprado: false
     });
+
+  // Filtrar detalles según el searchTerm
+  const detallesFiltrados = detalles.filter((detalle) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      detalle.Producto.toLowerCase().includes(term) ||
+      detalle.Descripcion.toLowerCase().includes(term)
+    );
+  });
 
 
   useEffect(() => {
@@ -426,7 +437,26 @@ const handleChange = (e) => {
 
       </form>
 
-      
+      {/* INPUT DE BÚSQUEDA */}
+      <div className="my-4 flex justify-end">
+        <div className="relative w-64">
+          <input
+            type="text"
+            placeholder="Buscar Producto o Descripción..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+          
+          <svg 
+            className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"
+            />
+          </svg>
+        </div>
+      </div>
 
       {/* Tabla de detalles */}
       <div className="overflow-x-auto bg-white dark:bg-gray-800 shadow-md rounded-lg transition-colors">
@@ -447,108 +477,112 @@ const handleChange = (e) => {
             </tr>
           </thead>
           <tbody>
-            {detalles.length > 0 ? (
-              detalles.map((detalle) => (
-                <tr key={detalle.IdDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
+  {detalles.filter(detalle =>
+    detalle.Producto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    detalle.Descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+  ).map(detalle => (
+                  <tr key={detalle.IdDetalle} className="hover:bg-gray-50 dark:hover:bg-gray-700 text-center transition-colors" >
                   
 
-                  <td className="p-3 border-b dark:border-gray-600 text-center">
-                    <Checkbox
-                      checked={detalle.IsComprado} // 🔹 valor actual del estado
-                      onCheckedChange={(checked) =>
-                        handleUpdateIsComprado(detalle.IdDetalle, checked)
-                      }
+                    <td className="p-3 border-b dark:border-gray-600 text-center">
+                      <Checkbox
+                        checked={detalle.IsComprado} // 🔹 valor actual del estado
+                        onCheckedChange={(checked) =>
+                          handleUpdateIsComprado(detalle.IdDetalle, checked)
+                        }
+                      />
+                    </td>
+
+
+                    <td className="p-3 border-b dark:border-gray-600">{detalle.Producto}</td>
+                    <td className="p-3 border-b dark:border-gray-600">{detalle.Descripcion}</td>
+                    <td className="p-3 border-b dark:border-gray-600">{detalle.Cantidad}</td>
+                    <td className="p-3 border-b dark:border-gray-600">{unidadesMedida.find(um => um.id == detalle.UnidadMedida).descripcion }</td>
+                    <td className="p-3 border-b dark:border-gray-600">
+                      {detalle.Precio != null
+                        ? new Intl.NumberFormat("es-PE", {
+                            style: "currency",
+                            currency: "PEN",
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(detalle.Precio)
+                        : "-"}
+                    </td>
+
+                    <td className="p-3 border-b dark:border-gray-600">
+                      {detalle.FechaVencimiento ? new Date(detalle.FechaVencimiento).toLocaleDateString() : "-"}
+                    </td>
+                    <td className="p-3 border-b dark:border-gray-600"> 
+                      {detalle.IsComprado ? (
+                        <span className="text-green-600 font-semibold">Comprado</span>
+                      ) : (
+                        <span className="text-red-600 font-semibold">Pendiente</span>
+                      )}
+                    </td>
+
+                  <td className="p-2 text-center border-b dark:border-gray-600">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button 
+                          className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition"
+                          onClick={(e) => e.stopPropagation()} // 👈 evita navigate al abrir el dialog
+                          >
+
+                          <Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
+                        </button>
+                      </AlertDialogTrigger>
+
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Eliminar lista?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Estás a punto de eliminar <span className="font-semibold">{detalle.Producto}</span>. 
+                            Esta acción no se puede deshacer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction className="bg-red-600 hover:bg-red-700" 
+                          onClick={(e) => {
+                          e.stopPropagation(); // 👈 evita que se dispare el navigate
+                          handleDelete(detalle.IdDetalle);}} >
+                            Eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
+
+                  
+
+                  <td className="p-2 text-center border-b dark:border-gray-600">
+                    <EditDetalleModal
+                      detalle={detalle}
+                      unidadesMedida={unidadesMedida} // ✅ aquí
+                      onSave={(updatedDetalle) => {
+                        setDetalles(prev =>
+                          prev.map(d => d.IdDetalle === updatedDetalle.IdDetalle ? updatedDetalle : d)
+                        );
+                      }}
                     />
+
                   </td>
-
-
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.Producto}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.Descripcion}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{detalle.Cantidad}</td>
-                  <td className="p-3 border-b dark:border-gray-600">{unidadesMedida.find(um => um.id == detalle.UnidadMedida).descripcion }</td>
-                  <td className="p-3 border-b dark:border-gray-600">
-                    {detalle.Precio != null
-                      ? new Intl.NumberFormat("es-PE", {
-                          style: "currency",
-                          currency: "PEN",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        }).format(detalle.Precio)
-                      : "-"}
-                  </td>
-
-                  <td className="p-3 border-b dark:border-gray-600">
-                    {detalle.FechaVencimiento ? new Date(detalle.FechaVencimiento).toLocaleDateString() : "-"}
-                  </td>
-                  <td className="p-3 border-b dark:border-gray-600"> 
-                    {detalle.IsComprado ? (
-                      <span className="text-green-600 font-semibold">Comprado</span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">Pendiente</span>
-                    )}
-                  </td>
-
-                <td className="p-2 text-center border-b dark:border-gray-600">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button 
-                        className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition"
-                         onClick={(e) => e.stopPropagation()} // 👈 evita navigate al abrir el dialog
-                        >
-
-                        <Trash className="h-5 w-5 text-red-600 hover:text-red-800" />
-                      </button>
-                    </AlertDialogTrigger>
-
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>¿Eliminar lista?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Estás a punto de eliminar <span className="font-semibold">{detalle.Producto}</span>. 
-                          Esta acción no se puede deshacer.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-
-                      <AlertDialogFooter>
-                        <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction className="bg-red-600 hover:bg-red-700" 
-                        onClick={(e) => {
-                        e.stopPropagation(); // 👈 evita que se dispare el navigate
-                        handleDelete(detalle.IdDetalle);}} >
-                          Eliminar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </td>
-
-                
-
-                <td className="p-2 text-center border-b dark:border-gray-600">
-                  <EditDetalleModal
-                    detalle={detalle}
-                    unidadesMedida={unidadesMedida} // ✅ aquí
-                    onSave={(updatedDetalle) => {
-                      setDetalles(prev =>
-                        prev.map(d => d.IdDetalle === updatedDetalle.IdDetalle ? updatedDetalle : d)
-                      );
-                    }}
-                  />
-
-                </td>
-
-                
 
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="9" className="p-4 text-center text-gray-500">
-                  No hay productos en esta lista
-                </td>
-              </tr>
-            )}
-          </tbody>
+  ))}
+
+  {detalles.filter(detalle =>
+    detalle.Producto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    detalle.Descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+  ).length === 0 && (
+    <tr>
+      <td colSpan="10" className="p-4 text-center text-gray-500">
+        No se encontraron productos
+      </td>
+    </tr>
+  )}
+</tbody>
         </table>
       </div>
     </div>
