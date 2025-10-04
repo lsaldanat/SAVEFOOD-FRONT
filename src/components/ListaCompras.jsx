@@ -4,6 +4,14 @@ import { obtenerListas, insertarLista, eliminarLista  } from "../services/listaS
 import { Plus, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+
 
 import {
   AlertDialog,
@@ -18,6 +26,29 @@ import {
 } from "@/components/ui/alert-dialog"
 
 
+export function DatePickerModern({ value, onChange }) {
+  const [date, setDate] = useState(value ? new Date(value) : new Date());
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+         <button type="button" className="w-full px-4 py-2 border rounded-lg text-left focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" >
+          {date ? format(date, "dd/MM/yyyy") : "Seleccionar fecha"}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar mode="single" selected={date} 
+        onSelect={(d) => {
+                            setDate(d);
+                            onChange(d);
+                          }}
+          initialFocus />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
 export default function ListaCompras() {
 
   const navigate = useNavigate();
@@ -29,7 +60,7 @@ export default function ListaCompras() {
   const [nuevaLista, setNuevaLista] = useState({
     Nombre: "",
     Descripcion: "",
-    Fecha: "",
+    Fecha: new Date(),  // 👈 arranca en hoy
     Nota: "",
     IdUsuario: 1,
   });
@@ -64,11 +95,22 @@ export default function ListaCompras() {
 
     try {
 
+
+      const fechaLocal = new Date(
+        nuevaLista.Fecha.getTime() - nuevaLista.Fecha.getTimezoneOffset() * 60000
+      );
+
+
       // Aseguramos que la fecha esté en formato ISO
       const payload = {
         ...nuevaLista,
-        Fecha: new Date(nuevaLista.Fecha).toISOString()
+        Fecha: nuevaLista.Fecha 
+        ? fechaLocal.toISOString()
+        : null,   // 👈 si no hay fecha, manda null
       };
+      // const fechaISO = nuevaLista.Fecha 
+      // ? nuevaLista.Fecha.toISOString() 
+      // : null;
 
       const dataInsertada = await insertarLista(payload);
 
@@ -80,7 +122,7 @@ export default function ListaCompras() {
       setNuevaLista({
         Nombre: "",
         Descripcion: "",
-        Fecha: "",
+        Fecha: new Date(), // 👈 otra vez hoy
         Nota: "",
         IdUsuario: 1,
       });
@@ -119,8 +161,7 @@ export default function ListaCompras() {
         <input type="text" name="Descripcion" placeholder="Descripción" value={nuevaLista.Descripcion} onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" />
         
-        <input type="date" name="Fecha" value={nuevaLista.Fecha || ''} onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" required />
+        <DatePickerModern value={nuevaLista.Fecha} onChange={(nuevaFecha) => setNuevaLista({ ...nuevaLista, Fecha: nuevaFecha })} required />
         
         <input type="text" name="Nota" placeholder="Nota" value={nuevaLista.Nota} onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" />
@@ -158,7 +199,7 @@ export default function ListaCompras() {
                 <td className="p-3 border-b dark:border-gray-600">{index + 1 }</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nombre}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Descripcion || "Sin descripción"}</td>
-                <td className="p-3 border-b dark:border-gray-600">{new Date(lista.Fecha).toLocaleDateString()}</td>
+                <td className="p-3 border-b dark:border-gray-600">{format(new Date(lista.Fecha + "T00:00:00"), "dd/MM/yyyy")}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nota || "Sin nota"}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.IdUsuario}</td>
                 
@@ -196,7 +237,7 @@ export default function ListaCompras() {
                     </AlertDialogContent>
                   </AlertDialog>
                 </td>
-                
+
               </tr>
             ))}
 
