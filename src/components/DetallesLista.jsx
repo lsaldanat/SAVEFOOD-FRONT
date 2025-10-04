@@ -4,7 +4,7 @@ import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outlin
 
 // import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
 import { obtenerListaPorId } from "../services/listaService"; // 👈 importar
-import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId, actualizarIsComprado   } from "../services/detalleService";
+import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId, actualizarIsComprado, actualizarDetallexId    } from "../services/detalleService";
 
 import { obtenerUnidadMedidas } from "../services/UnidadMedida"; // 👈 importar
 import { Checkbox } from "@/components/ui/checkbox"
@@ -15,7 +15,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 
-import { Plus, Trash } from "lucide-react";
+//Animacion modal
+import { motion } from "framer-motion";
+
+import { Plus, Trash, Edit  } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +30,177 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  // DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  // DialogFooter,
+  DialogClose,
+  Portal
+} from "@/components/ui/dialog"; // si usas tus componentes Radix UI
+
+import { Button } from "@/components/ui/button";
+
+
+export function EditDetalleModal({ detalle, unidadesMedida, onSave }) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ ...detalle });
+  const [loading, setLoading] = useState(false); // para deshabilitar botón mientras actualiz
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async () => {
+
+    
+    try {
+      setLoading(true); // deshabilita el botón 
+      const actualizado = await actualizarDetallexId(form.IdDetalle, form);
+      if (actualizado) {
+        onSave(actualizado); // 🔹 actualiza el estado en el padre
+        setOpen(false);
+      } else {
+        console.error("No se pudo actualizar el detalle");
+      }
+    } catch (error) {
+      console.error("Error al actualizar detalle:", error);
+    } finally {
+      setLoading(false);
+    }   
+
+
+    onSave(form);
+    setOpen(false);
+  };
+
+  <select
+    name="UnidadMedida"
+    value={form.UnidadMedida ?? ""}
+    onChange={handleChange}
+    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+  >
+    {unidadesMedida.map((um) => (
+      <option key={um.id} value={um.id}>{um.descripcion}</option>
+    ))}
+  </select>
+
+  return (
+    
+      
+
+      
+
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          <Edit className="h-5 w-5 text-blue-600" />
+        </button>
+      </DialogTrigger>
+
+      <Portal>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <DialogContent asChild>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="sm:max-w-lg sm:w-full rounded-xl p-6 bg-white dark:bg-gray-900 shadow-lg"
+            >
+              <DialogTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                Editar Detalle
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4 text-center">
+                Modifica la información del producto.
+              </DialogDescription>
+
+              {/* FORMULARIO COMPLETO */}
+              <div className="grid gap-4">
+
+                {/* Producto */}
+                <input
+                  type="text" name="Producto" value={form.Producto || ""} onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  placeholder="Producto"
+                />
+
+                {/* Descripción */}
+                <input
+                  type="text" name="Descripcion" value={form.Descripcion || ""} onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  placeholder="Descripción"
+                />
+
+                {/* Cantidad */}
+                <input
+                  type="number" name="Cantidad" value={form.Cantidad ?? ""} onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  placeholder="Cantidad"
+                />
+
+                {/* Unidad de medida */}
+                <select
+                  name="UnidadMedida" value={form.UnidadMedida ?? ""} onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                  {unidadesMedida.map((um) => (
+                    <option key={um.id} value={um.id}>{um.descripcion}</option>
+                  ))}
+                </select>
+
+                {/* Precio */}
+                <div className="relative w-full">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">S/</span>
+                  <input
+                    type="number" name="Precio" value={form.Precio ?? ""} onChange={handleChange} min={0} step="0.01"
+                    className="w-full pl-8 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                    placeholder="Precio"
+                  />
+                </div>
+
+                {/* Fecha de Vencimiento */}
+                <DatePickerModern
+                  value={form.FechaVencimiento}
+                  onChange={(nuevaFecha) =>
+                    setForm((prev) => ({ ...prev, FechaVencimiento: nuevaFecha }))
+                  }
+                />
+
+              </div>
+              {/* FIN FORMULARIO COMPLETO */}
+
+              {/* BOTONES */}
+              <div className="mt-6 flex justify-end gap-3">
+                <DialogClose asChild>
+                  <button className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition">
+                    Cancelar
+                  </button>
+                </DialogClose>
+                <button
+                  onClick={handleSave}
+                  disabled={loading}
+                  className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md">
+                  {loading ? "Guardando..." : "Confirmar"}
+                </button>
+              </div>
+            </motion.div>
+          </DialogContent>
+        </div>
+      </Portal>
+    </Dialog>
+
+    
+  );
+}
+
+
+
 
 export function DatePickerModern({ value, onChange }) {
   
@@ -269,6 +443,7 @@ const handleChange = (e) => {
               <th className="p-3 border-b dark:border-gray-600">Estado</th>
               {/* <th className="p-3 border-b dark:border-gray-600">*</th> */}
               <th className="p-3 border-b dark:border-gray-600">*</th>
+              <th className="p-3 border-b dark:border-gray-600">*</th>
             </tr>
           </thead>
           <tbody>
@@ -307,7 +482,7 @@ const handleChange = (e) => {
                   </td>
                   <td className="p-3 border-b dark:border-gray-600"> 
                     {detalle.IsComprado ? (
-                      <span className="text-green-600 font-semibold">✔ Comprado</span>
+                      <span className="text-green-600 font-semibold">Comprado</span>
                     ) : (
                       <span className="text-red-600 font-semibold">Pendiente</span>
                     )}
@@ -347,6 +522,22 @@ const handleChange = (e) => {
                   </AlertDialog>
                 </td>
 
+                
+
+                <td className="p-2 text-center border-b dark:border-gray-600">
+                  <EditDetalleModal
+                    detalle={detalle}
+                    unidadesMedida={unidadesMedida} // ✅ aquí
+                    onSave={(updatedDetalle) => {
+                      setDetalles(prev =>
+                        prev.map(d => d.IdDetalle === updatedDetalle.IdDetalle ? updatedDetalle : d)
+                      );
+                    }}
+                  />
+
+                </td>
+
+                
 
                 </tr>
               ))
