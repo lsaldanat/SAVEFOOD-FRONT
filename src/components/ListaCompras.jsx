@@ -40,11 +40,16 @@ export function DatePickerModern({ value, onChange }) {
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} 
+        <Calendar 
+        mode="single" 
+        selected={date} 
         onSelect={(d) => {
                             setDate(d);
                             onChange(d);
                           }}
+        captionLayout="dropdown"  // 👈 aquí el truco: agrega select de mes y año
+        fromYear={2025}
+        toYear={2030}
           initialFocus />
       </PopoverContent>
     </Popover>
