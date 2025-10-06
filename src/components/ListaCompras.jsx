@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { obtenerListas, insertarLista, eliminarLista  } from "../services/listaService";
+import ThemeToggle from "./ThemeToggle";
 
 import { Plus, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +27,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-
+import { getCurrentSession, onAuthStateChange, logout } from "../services/auth";
+import { color } from "framer-motion";
 
 
 export function DatePickerModern({ value, onChange }) {
@@ -62,7 +64,7 @@ export default function ListaCompras() {
   const navigate = useNavigate();
   const [listas, setListas] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // 👈 estado para controlar el envío
-
+  const [user, setUser] = useState(null);
 
 
   const [nuevaLista, setNuevaLista] = useState({
@@ -74,6 +76,24 @@ export default function ListaCompras() {
   });
 
   useEffect(() => {
+  
+
+    // ✅ Verificar sesión al cargar
+    getCurrentSession().then((session) => {
+      if (session) {
+        setUser(session.user);
+      } else {
+        window.location.href = "/login";
+      }
+    });
+
+  
+    // ✅ Escuchar login/logout
+    const subscription = onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+
     let isMounted = true;
 
     async function fetchData() {
@@ -86,7 +106,13 @@ export default function ListaCompras() {
     }
 
     fetchData();
-    return () => { isMounted = false; };
+    return () => { 
+      isMounted = false; 
+      subscription.unsubscribe();
+      //remove or unsubscribe
+      //remove v1
+      //unsubscribe v2
+    };
   }, []);
 
   const handleChange = (e) => {
@@ -156,10 +182,27 @@ export default function ListaCompras() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold mb-4">Registrar Nueva Lista</h1>
-
+    <div className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors" >
       
+      {/* Header con botón volver y ThemeToggle */}
+      <div className="relative flex items-center justify-center mb-4">
+        {/* Botón volver */}
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="absolute left-0 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+        >
+          ← Volver Dashboard
+        </button>
+
+        {/* Título centrado */}
+        <h1 className="text-2xl font-bold">Registrar Nueva Lista</h1>
+
+        {/* ThemeToggle */}
+        <div className="absolute right-0">
+          <ThemeToggle />
+        </div>
+      </div>
+
 
       {/* Formulario */}
       <form className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 space-y-4 transition-colors" onSubmit={handleSubmit} >

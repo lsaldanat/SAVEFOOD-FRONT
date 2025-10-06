@@ -81,6 +81,7 @@ export function DatePickerModern({ value, onChange }) {
 
 
 export default function DetallesLista() {
+  
   const { IdLista } = useParams();
   const [detalles, setDetalles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -214,10 +215,10 @@ const handleChange = (e) => {
 
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors" >
       <div className="flex justify-between items-center">
         {/* BOTÓN VOLVER */}
-        <button onClick={() => navigate("/")} // ajusta la ruta a la de tu lista de compras
+        <button onClick={() => navigate("/lista")} // ajusta la ruta a la de tu lista de compras
           className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition" >
           ← Volver
         </button>
