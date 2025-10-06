@@ -17,8 +17,22 @@ export async function login(email, password) {
   return data.user;
 }
 
+// 🔹 Registrar usuario
+export async function register(email, password) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${window.location.origin}/login`,
+    },
+  });
+  if (error) throw error;
+  return data;
+}
+
+
 // Cerrar sesión
-export async function logout() {
+export async function logout() {  
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }

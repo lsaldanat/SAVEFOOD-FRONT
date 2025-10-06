@@ -1,14 +1,21 @@
-import './App.css'
-//import TestForm from "./components/TestForm";
-import ThemeToggle from "./components/ThemeToggle";
-import { BrowserRouter, Routes, Route, Navigate  } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ListaCompras from "./components/ListaCompras";
-import DetallesLista from "./components/DetallesLista"; // importa tu componente
+// 1. Librerías externas
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+// 2. Estilos globales
+import "./App.css";
+
+// 3. Contextos
+//import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthProvider";
+
+// 4. Componentes - páginas
 import LoginPage from "./components/pages/LoginPage";
 import RegisterPage from "./components/pages/RegisterPage";
 import Dashboard from "./components/pages/Dashboard";
+
+// 5. Componentes - funcionales
+import ListaCompras from "./components/ListaCompras";
+import DetallesLista from "./components/DetallesLista";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -55,7 +62,6 @@ function App() {
         
         </Routes>
       </AuthProvider>
-      
     </BrowserRouter>
   );
 }

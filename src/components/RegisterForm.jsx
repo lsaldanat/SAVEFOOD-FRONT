@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
 import { Eye, EyeOff } from "lucide-react"; // 👈 si usas lucide-react
-
+import { register } from "../services/auth";
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("");
@@ -15,13 +14,12 @@ export default function RegisterForm() {
     setError("");
     setSuccess("");
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/login`, // 👈 a dónde redirige tras confirmar
-      },
-    });
+    try {
+      await register(email, password);
+      setSuccess("Revisa tu correo para confirmar tu cuenta ✅");
+    } catch (err) {
+      setError(err.message);
+    }
 
     if (error) {
       setError(error.message);

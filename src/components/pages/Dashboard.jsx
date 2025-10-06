@@ -1,37 +1,21 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; // 👈 importa el contexto
+import { useAuth } from "../../hooks/useAuth";
+import { logout } from "../../services/auth"; // 👈 reutilizas el servicio
 
-
-export default function Dashboard() {
-  const { user } = useAuth(); // 👈 usuario global
+function Dashboard() {
+  const { user, loading } = useAuth(); // 👈 usuario global
   const navigate = useNavigate();
 
-  
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  if (loading) return <p>Cargando...</p>;
+
+   const handleLogout = async () => {
+    await logout();        // 👈 en vez de supabase.auth.signOut()
     navigate("/login");
   };
 
   const goToLista = () => navigate("/lista");
   
   if (!user) return <p className="text-center mt-10">Cargando...</p>;
-
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //       const { data, error } = await supabase.auth.getSession();
-
-  //       if (error || !data.session) {
-  //       navigate("/login", { replace: true }); // fuerza redirección
-  //       } else {
-  //       setCurrentUser(data.session.user);
-  //       }
-  //   };
-  //   checkSession();
-
-  // }, [navigate]);
-
 
   return (
     <div className="p-6 flex flex-col items-center gap-4">
@@ -49,6 +33,7 @@ export default function Dashboard() {
       </button>
     </div>
   );
-
-
 }
+
+// 👇 Exportación por defecto obligatoria
+export default Dashboard;

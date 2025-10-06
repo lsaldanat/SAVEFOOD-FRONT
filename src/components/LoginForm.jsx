@@ -2,7 +2,8 @@ import { useState } from "react";
 import { login } from "../services/auth"; // 👈 importa la función de login
 
 import { Link, useNavigate  } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // 👈 importa el contexto
+// import { useAuth } from "../context/AuthContext"; // 👈 importa el contexto
+import { useAuth } from "../hooks/useAuth";
 import { Eye, EyeOff } from "lucide-react"; // iconos de ojo
 
 export default function LoginForm() {
