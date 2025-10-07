@@ -71,8 +71,8 @@ export default function DashboardLayout() {
         </header>
 
         {/* Contenido dinámico */}
-        <main className="flex-1 p-6 overflow-auto">
-          <Outlet />
+        <main className="flex-1 p-6 overflow-auto"  style={{ background: "#374151" }}  >
+            <Outlet />
         </main>
       </div>
     </div>

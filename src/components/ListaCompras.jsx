@@ -181,8 +181,9 @@ export default function ListaCompras() {
     }
   };
 
+  // max-w-5xl
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors" >
+    <div className="p-6 mx-auto space-y-6 min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors" >
       
       {/* Header con botón volver y ThemeToggle */}
       <div className="relative flex items-center justify-center mb-4">

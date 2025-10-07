@@ -208,8 +208,9 @@ const handleChange = (e) => {
   if (loading) return <p>Cargando...</p>;
 
 
+  // max-w-5xl
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6 min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors" >
+    <div className="p-6 mx-auto space-y-6 min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white transition-colors" >
       <div className="flex justify-between items-center">
         {/* BOTÓN VOLVER */}
         <button onClick={() => navigate("/lista")} // ajusta la ruta a la de tu lista de compras
