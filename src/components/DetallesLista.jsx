@@ -45,7 +45,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 
-
+import MonthYearPicker from "@/components/MonthYearPicker";
 
 export function DatePickerModern({ value, onChange }) {
   
@@ -247,7 +247,19 @@ const handleChange = (e) => {
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
         />
 
-        <DatePickerModern value={nuevoDetalle.FechaVencimiento} onChange={(nuevaFecha) => setNuevoDetalle({ ...nuevoDetalle, FechaVencimiento: nuevaFecha })} required />
+        {/* Fecha de Vencimiento con MonthYearPicker */}
+        <MonthYearPicker
+          value={nuevoDetalle.FechaVencimiento ?? null}
+          onChange={(nuevaFecha) =>
+            setNuevoDetalle(prev => ({
+              ...prev,
+              FechaVencimiento: nuevaFecha.toISOString().split("T")[0] // YYYY-MM-01
+            }))
+          }
+          fromYear={2025}
+          toYear={2032}
+          darkMode={true} required
+        />
 
         <input type="number" name="Cantidad" placeholder="Cantidad" value={nuevoDetalle.Cantidad ?? ""} onChange={handleChange}
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
@@ -343,7 +355,7 @@ const handleChange = (e) => {
                               </td>
 
                               <td className="p-3 border-b dark:border-gray-600">
-                                {detalle.FechaVencimiento ? new Date(detalle.FechaVencimiento).toLocaleDateString() : "-"}
+                                {detalle.FechaVencimiento ? detalle.FechaVencimiento.split('-')[1]+"/"+detalle.FechaVencimiento.split('-')[0] : "-"}
                               </td>
                               <td className="p-3 border-b dark:border-gray-600"> 
                                 {detalle.IsComprado ? (

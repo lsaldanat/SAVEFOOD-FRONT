@@ -18,6 +18,17 @@ import ListaCompras from "./components/ListaCompras";
 import DetallesLista from "./components/DetallesLista";
 import PrivateRoute from "./components/PrivateRoute";
 
+
+
+// Antes de la función App()
+const theme = localStorage.getItem("theme");
+if (theme === "dark") {
+  document.documentElement.classList.add("dark");
+} else {
+  document.documentElement.classList.remove("dark");
+}
+
+
 function App() {
   return (
     <BrowserRouter>

@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { logout } from "../../services/auth"; // 👈 reutilizas el servicio
+// import { logout } from "../../services/auth"; // 👈 reutilizas el servicio
 
 function Dashboard() {
-  const { user, loading } = useAuth(); // 👈 usuario global
+  const { user, loading, logout  } = useAuth(); // 👈 usuario global
   const navigate = useNavigate();
 
   if (loading) return <p>Cargando...</p>;

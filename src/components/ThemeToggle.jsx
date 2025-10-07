@@ -1,21 +1,15 @@
-import { useEffect, useState } from "react";
+// components/ThemeToggle.jsx
+import useDarkMode from "../hooks/useDarkMode";
 
 export default function ThemeToggle() {
-  const [darkMode, setDarkMode] = useState(true);
-
-  useEffect(() => {
-    const root = document.documentElement; // <html>
-    if (darkMode) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [darkMode]);
+  const [darkMode, toggleDarkMode] = useDarkMode();
 
   return (
-    <button onClick={() => setDarkMode(!darkMode)} 
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors" >
-      {darkMode ? "🌙" : "☀️"}
+    <button
+      onClick={toggleDarkMode}
+      className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:text-white transition"
+    >
+      {darkMode ? "🌙 Oscuro" : "☀️ Claro"}
     </button>
   );
 }

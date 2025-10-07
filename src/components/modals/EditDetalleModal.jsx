@@ -21,15 +21,30 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 
+import MonthYearPicker from "@/components/MonthYearPicker";
 
-export function DatePickerModern({ value, onChange }) {
+
+export function DatePickerMesAno({ value, onChange }) {
   
   const [date, setDate] = useState(value ? new Date(value) : new Date());
 
-  // 🔹 Si cambia "value" desde el padre, sincronizar con el estado local
+  // Sincroniza con value del padre
   useEffect(() => {
-    setDate(value ? new Date(value) : new Date());
+    if (value) {
+      const d = new Date(value);
+      d.setDate(1);       // día fijo
+      d.setHours(0,0,0,0);// hora fija
+      setDate(d);
+    }
   }, [value]);
+
+  const handleSelect = (d) => {
+    if (!d) return;
+    d.setDate(1);
+    d.setHours(0,0,0,0);
+    setDate(d);
+    onChange(d);
+  };
 
   return (
     <Popover>
@@ -38,16 +53,14 @@ export function DatePickerModern({ value, onChange }) {
           {date ? format(date, "dd/MM/yyyy") : "Seleccionar fecha"}
         </button>
       </PopoverTrigger>
+
       <PopoverContent className="w-auto p-0">
         <Calendar mode="single" selected={date} 
-        onSelect={(d) => {
-                            setDate(d);
-                            onChange(d);
-                          }}
+        onSelect={handleSelect}
         captionLayout="dropdown"  // 👈 aquí el truco: agrega select de mes y año
         fromYear={2025}
         toYear={2030}
-          initialFocus />
+        initialFocus />
       </PopoverContent>
     </Popover>
   );
@@ -151,11 +164,15 @@ export default function EditDetalleModal({ detalle, unidadesMedida, onSave }) {
                 </div>
 
                 {/* Fecha de Vencimiento */}
-                <DatePickerModern
+                <MonthYearPicker
                     value={form.FechaVencimiento ?? null}
                     onChange={(nuevaFecha) =>
-                        setForm((prev) => ({ ...prev, FechaVencimiento: nuevaFecha }))
+                        setForm((prev) => ({ ...prev, FechaVencimiento: nuevaFecha.toISOString().split("T")[0] // YYYY-MM-01
+                        }))
                     }
+                    fromYear={2025}
+                    toYear={2032}
+                    darkMode={true}
                 />
                 
               </div>
