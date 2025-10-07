@@ -1,3 +1,4 @@
+
 // 1. Librerías externas
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -7,19 +8,21 @@ import "./App.css";
 // 3. Contextos
 import { AuthProvider } from "./context/AuthProvider";
 
-// 4. Componentes - páginas
+// 4. Layouts
+import DashboardLayout from "./layouts/DashboardLayout";
+import AuthLayout from "./layouts/AuthLayout";
+
+// 5. Páginas (dentro de components/pages)
 import LoginPage from "./components/pages/LoginPage";
 import RegisterPage from "./components/pages/RegisterPage";
 import Dashboard from "./components/pages/Dashboard";
 
-// 5. Componentes - funcionales
+// 6. Componentes funcionales
 import ListaCompras from "./components/ListaCompras";
 import DetallesLista from "./components/DetallesLista";
 import PrivateRoute from "./components/PrivateRoute";
 
-
-
-// Antes de la función App()
+// 7. Configuración de tema (modo oscuro)
 const theme = localStorage.getItem("theme");
 if (theme === "dark") {
   document.documentElement.classList.add("dark");
@@ -27,53 +30,39 @@ if (theme === "dark") {
   document.documentElement.classList.remove("dark");
 }
 
-
+// 8. Componente principal
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        {/* ✅ Rutas de la app */}
         <Routes>
-
-           {/* Si alguien entra a "/", lo mandamos al login */}
+          {/* Redirigir "/" al login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* Ruta pública */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          {/* Rutas públicas con AuthLayout */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
 
-          {/* Rutas protegidas */}
-          <Route
-            path="/dashboard"
+          {/* Rutas privadas con DashboardLayout */}
+          <Route 
             element={
               <PrivateRoute>
-                <Dashboard />
+                <DashboardLayout />
               </PrivateRoute>
-            }
-          />
+            }>
 
-          <Route
-            path="/lista"
-            element={
-              <PrivateRoute>
-                <ListaCompras />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/detalles/:IdLista"
-            element={
-              <PrivateRoute>
-                <DetallesLista />
-              </PrivateRoute>
-            }
-          />
-        
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/lista" element={<ListaCompras />} />
+            <Route path="/detalles/:IdLista" element={<DetallesLista />} />
+
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>
   );
 }
 
-export default App
+export default App;
+

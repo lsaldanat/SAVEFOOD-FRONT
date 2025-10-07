@@ -10,7 +10,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // 👈 estado para mostrar/ocultar
   const [error, setError] = useState("");
-
   const { setUser } = useAuth(); // 👈 accedes a la función para actualizar usuario global
   const navigate = useNavigate(); // 👈 para redirigir después del login
 
@@ -31,8 +30,7 @@ export default function LoginForm() {
       
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm bg-gray-800/90 backdrop-blur-md p-8 rounded-2xl shadow-lg border border-gray-700"
-        >
+        className="w-full max-w-sm bg-gray-800/90 backdrop-blur-md p-8 rounded-2xl shadow-lg border border-gray-700">
         <h2 className="text-2xl font-bold text-center text-white mb-6">🛒 Iniciar Sesión</h2>
 
         <div className="flex flex-col gap-4">
@@ -53,22 +51,20 @@ export default function LoginForm() {
             </button>
           </div>
 
-          {error && ( 
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
             type="submit"
-            className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-lg transition duration-300 shadow-md hover:shadow-blue-500/30" >
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300">
             Entrar
           </button>
           
           {/* 👇 Enlace al registro */}
-          <p className="text-gray-400 text-sm text-center mt-4">
+          <p className="text-gray-500 dark:text-gray-400 text-sm text-center mt-2">
             ¿No tienes cuenta?{" "}
-            <Link to="/register" className="text-blue-400 hover:underline">
+            <Link to="/register" className="text-blue-500 hover:underline">
               Regístrate aquí
-            </Link> 
+            </Link>
           </p>
 
         </div>
