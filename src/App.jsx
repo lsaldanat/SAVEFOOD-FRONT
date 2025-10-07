@@ -5,7 +5,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
 // 3. Contextos
-//import { AuthProvider } from "./context/AuthContext";
 import { AuthProvider } from "./context/AuthProvider";
 
 // 4. Componentes - páginas

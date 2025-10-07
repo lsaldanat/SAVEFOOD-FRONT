@@ -1,12 +1,11 @@
-import { useEffect, useState, useRef  } from "react";
+import { useEffect, useState  } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { TrashIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 
-// import { obtenerDetallesPorLista, eliminarDetalle } from "../services/detalleService";
+
 import { obtenerListaPorId } from "../services/listaService"; // 👈 importar
-import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId, actualizarIsComprado, actualizarDetallexId    } from "../services/detalleService";
-
+import { obtenerDetallexLista, insertarDetallexLista, eliminarDetallexId, actualizarIsComprado  } from "../services/detalleService";
 import { obtenerUnidadMedidas } from "../services/UnidadMedida"; // 👈 importar
+
 import { Checkbox } from "@/components/ui/checkbox"
 
 // DatePickerModern
@@ -17,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import EditDetalleModal from "@/components/modals/EditDetalleModal";
 
 
-import { Plus, Trash, Edit  } from "lucide-react";
+import {  Trash  } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,22 +29,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  // DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  // DialogFooter,
-  DialogClose,
-  Portal
-} from "@/components/ui/dialog"; // si usas tus componentes Radix UI
-
-import { Button } from "@/components/ui/button";
-
 
 import MonthYearPicker from "@/components/MonthYearPicker";
+
 
 export function DatePickerModern({ value, onChange }) {
   
@@ -90,17 +76,20 @@ export default function DetallesLista() {
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
-
-  const fecha = new Date();
-      fecha.setHours(0,0,0,0);
       
+
+  const diaActual = new Date().getDate();
+  const mesActual = new Date().getMonth();
+  const anioActual = new Date().getFullYear();
+
+
   const [nuevoDetalle, setNuevoDetalle] = useState({
       Producto: "",
       Descripcion: "",
       Cantidad: null,
       UnidadMedida: 4,
       Precio: null,
-      FechaVencimiento: fecha.toISOString().split("T")[0], // "YYYY-MM-DD"
+      FechaVencimiento: anioActual+"-"+String(mesActual+1).padStart(2, '0')+"-"+String(diaActual).padStart(2, '0'), // hoy YYYY-MM-DD
       IsComprado: false
     });
 
@@ -158,7 +147,9 @@ const handleChange = (e) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const detalleConLista = { ...nuevoDetalle, IdLista: parseInt(IdLista) };
+      const detalleConLista = { ...nuevoDetalle, 
+                                IdLista: parseInt(IdLista),
+                                FechaVencimiento: nuevoDetalle.FechaVencimiento  };
       
       await insertarDetallexLista(detalleConLista);
       
@@ -166,8 +157,11 @@ const handleChange = (e) => {
       const dataActualizada = await obtenerDetallexLista(IdLista);
       setDetalles(dataActualizada);
 
-      const fecha = new Date();
-      fecha.setHours(0,0,0,0);
+      const diaActual = new Date().getDate();
+      const mesActual = new Date().getMonth();
+      const anioActual = new Date().getFullYear();
+      // Limpia el formulario
+      
 
       setNuevoDetalle({
         Producto: "",
@@ -175,7 +169,7 @@ const handleChange = (e) => {
         Cantidad: null,
         UnidadMedida: 4,
         Precio: null,
-        FechaVencimiento: fecha.toISOString().split("T")[0], // "YYYY-MM-DD"
+        FechaVencimiento: anioActual+"-"+String(mesActual+1).padStart(2, '0')+"-"+String(diaActual).padStart(2, '0'), // hoy YYYY-MM-DD
         IsComprado: false
       });
     } catch (error) {
@@ -251,9 +245,7 @@ const handleChange = (e) => {
         <MonthYearPicker
           value={nuevoDetalle.FechaVencimiento ?? null}
           onChange={(nuevaFecha) =>
-            setNuevoDetalle(prev => ({
-              ...prev,
-              FechaVencimiento: nuevaFecha.toISOString().split("T")[0] // YYYY-MM-01
+            setNuevoDetalle(prev => ({ ...prev, FechaVencimiento: nuevaFecha // YYYY-MM-01
             }))
           }
           fromYear={2025}
@@ -355,7 +347,7 @@ const handleChange = (e) => {
                               </td>
 
                               <td className="p-3 border-b dark:border-gray-600">
-                                {detalle.FechaVencimiento ? detalle.FechaVencimiento.split('-')[1]+"/"+detalle.FechaVencimiento.split('-')[0] : "-"}
+                                {detalle.FechaVencimiento ? detalle.FechaVencimiento.split('-')[2]+"/"+detalle.FechaVencimiento.split('-')[1]+"/"+detalle.FechaVencimiento.split('-')[0] : "-"}
                               </td>
                               <td className="p-3 border-b dark:border-gray-600"> 
                                 {detalle.IsComprado ? (
@@ -430,6 +422,7 @@ const handleChange = (e) => {
         </tbody>
         </table>
       </div>
+      
     </div>
   );
 

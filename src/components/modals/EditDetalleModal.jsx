@@ -50,7 +50,7 @@ export function DatePickerMesAno({ value, onChange }) {
     <Popover>
       <PopoverTrigger asChild>
          <button type="button" className="w-full px-4 py-2 border rounded-lg text-left focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:border-gray-600" >
-          {date ? format(date, "dd/MM/yyyy") : "Seleccionar fecha"}
+          {date ? date.split("-")[2]+"/"+date.split("-")[1]+"/"+date.split("-")[0] : "Seleccionar fecha"}
         </button>
       </PopoverTrigger>
 
@@ -167,8 +167,7 @@ export default function EditDetalleModal({ detalle, unidadesMedida, onSave }) {
                 <MonthYearPicker
                     value={form.FechaVencimiento ?? null}
                     onChange={(nuevaFecha) =>
-                        setForm((prev) => ({ ...prev, FechaVencimiento: nuevaFecha.toISOString().split("T")[0] // YYYY-MM-01
-                        }))
+                        setForm((prev) => ({ ...prev, FechaVencimiento: nuevaFecha}))
                     }
                     fromYear={2025}
                     toYear={2032}
