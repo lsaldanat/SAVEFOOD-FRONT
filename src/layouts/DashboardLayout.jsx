@@ -2,11 +2,17 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";// 👈 importa el contexto
 
-import { Bell, Settings, Lock } from "lucide-react";
+import { Bell, Settings, Lock, ChevronDown } from "lucide-react";
+
+import { useState, useRef, useEffect } from "react";
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const handleLogout = async () => {
     try {
@@ -16,6 +22,18 @@ export default function DashboardLayout() {
       console.error("Error al cerrar sesión:", error);
     }
   };
+
+   // 🔹 Cierra el menú si se hace clic fuera
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -62,10 +80,38 @@ export default function DashboardLayout() {
             <Bell className="w-5 h-5 text-gray-600 dark:text-gray-200 cursor-pointer" />
             <Settings className="w-5 h-5 text-gray-600 dark:text-gray-200 cursor-pointer" />
             <Lock className="w-5 h-5 text-gray-600 dark:text-gray-200 cursor-pointer" />
-            {user && (
-              <span className="ml-2 font-medium truncate max-w-[150px]">
-                {user.email}
-              </span>
+              {user && (
+              <div className="relative">
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700 transition text-gray-100 bg-gray-800">
+                  <span className="truncate max-w-[120px]">{user.email}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {/* 🔹 Dropdown menu */}
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded shadow-lg z-20">
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        navigate("/change-password");
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                      Cambiar contraseña
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+
+              </div>
             )}
           </div>
         </header>

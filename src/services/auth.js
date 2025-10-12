@@ -43,3 +43,32 @@ export function onAuthStateChange(callback) {
   const { data } = supabase.auth.onAuthStateChange(callback);
   return data.subscription;
 }
+
+// Actualizar contraseña
+export async function updatePassword(newPassword) {
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+  if (error) throw error;
+}
+
+export async function changePasswordWithValidation(oldPassword, newPassword) {
+  // Obtener usuario actual
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) throw new Error("Usuario no autenticado");
+
+  // Verificar contraseña anterior
+  const { error: loginError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: oldPassword,
+  });
+  if (loginError) throw new Error("La contraseña actual es incorrecta ❌");
+
+  // Actualizar a la nueva contraseña
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+  if (updateError) throw updateError;
+
+  return "Contraseña actualizada correctamente ✅";
+}

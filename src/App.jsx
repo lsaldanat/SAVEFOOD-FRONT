@@ -16,6 +16,8 @@ import AuthLayout from "./layouts/AuthLayout";
 import LoginPage from "./components/pages/LoginPage";
 import RegisterPage from "./components/pages/RegisterPage";
 import Dashboard from "./components/pages/Dashboard";
+import ChangePassword from "./components/pages/ChangePassword";
+
 
 // 6. Componentes funcionales
 import ListaCompras from "./components/ListaCompras";
@@ -54,6 +56,7 @@ function App() {
             }>
 
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/lista" element={<ListaCompras />} />
             <Route path="/detalles/:IdLista" element={<DetallesLista />} />
 
