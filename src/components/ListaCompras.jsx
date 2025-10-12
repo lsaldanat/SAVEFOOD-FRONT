@@ -5,7 +5,7 @@ import ThemeToggle from "./ThemeToggle";
 import { Plus, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import DatePicker from "react-datepicker";
+
 import "react-datepicker/dist/react-datepicker.css";
 
 // DatePickerModern
@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { getCurrentSession, onAuthStateChange, logout } from "../services/auth";
-import { color } from "framer-motion";
+
 
 
 export function DatePickerModern({ value, onChange }) {
@@ -59,20 +59,21 @@ export function DatePickerModern({ value, onChange }) {
 }
 
 
+import { useListaService } from "../services/useListaService";  // 🔹 importa el hook
+
 export default function ListaCompras() {
 
   const navigate = useNavigate();
   const [listas, setListas] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // 👈 estado para controlar el envío
   const [user, setUser] = useState(null);
-
+  const {useObtenerListas, useInsertarLista } = useListaService();
 
   const [nuevaLista, setNuevaLista] = useState({
     Nombre: "",
     Descripcion: "",
     Fecha: new Date(),  // 👈 arranca en hoy
-    Nota: "",
-    IdUsuario: 1,
+    Nota: ""
   });
 
   useEffect(() => {
@@ -98,7 +99,8 @@ export default function ListaCompras() {
 
     async function fetchData() {
       try {
-        const data = await obtenerListas();
+        //const data = await obtenerListas();
+        const data = await useObtenerListas();
         if (isMounted) setListas(data);
       } catch (error) {
         console.error("Error al obtener listas:", error);
@@ -146,10 +148,12 @@ export default function ListaCompras() {
       // ? nuevaLista.Fecha.toISOString() 
       // : null;
 
-      const dataInsertada = await insertarLista(payload);
+      //const dataInsertada = await insertarLista(payload);
+      const dataInsertada = await useInsertarLista(payload);
 
       // Refresca la lista desde Supabase
-      const dataActualizada = await obtenerListas();
+      //const dataActualizada = await obtenerListas();
+      const dataActualizada = await useObtenerListas();
       setListas(dataActualizada);
       
       // Limpiar formulario
@@ -157,8 +161,7 @@ export default function ListaCompras() {
         Nombre: "",
         Descripcion: "",
         Fecha: new Date(), // 👈 otra vez hoy
-        Nota: "",
-        IdUsuario: 1,
+        Nota: ""
       });
       
     
@@ -253,7 +256,7 @@ export default function ListaCompras() {
                 <td className="p-3 border-b dark:border-gray-600">{lista.Descripcion || "Sin descripción"}</td>
                 <td className="p-3 border-b dark:border-gray-600">{format(new Date(lista.Fecha + "T00:00:00"), "dd/MM/yyyy")}</td>
                 <td className="p-3 border-b dark:border-gray-600">{lista.Nota || "Sin nota"}</td>
-                {/* <td className="p-3 border-b dark:border-gray-600">{lista.IdUsuario}</td> */}
+                
                 
                 {/* <td className="p-2 text-center border-b dark:border-gray-600">
                   <button onClick={() => navigate(`/detalles/${lista.IdLista}`)}

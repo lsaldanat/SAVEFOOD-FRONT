@@ -7,6 +7,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
+    
     // Sesión inicial
     // ✅ función interna asíncrona para cargar la sesión inicial
     const loadSession = async () => {

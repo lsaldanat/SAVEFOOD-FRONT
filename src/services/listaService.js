@@ -3,6 +3,8 @@ import { supabase } from "../lib/supabaseClient";
 //const API_URL = "https://localhost:7224/api/ListaDeCompras"; // tu endpoint
 
 export async function obtenerListas() {
+  const { user } = useAuth();
+
   // try {
   //   const response = await fetch(supabase);
   //   if (!response.ok) throw new Error("Error al obtener listas");

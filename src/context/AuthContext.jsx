@@ -1,9 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { 
-  getCurrentSession,
-  logout,
-  onAuthStateChange
-} from "../services/auth";
+import { getCurrentSession, logout, onAuthStateChange } from "../services/auth";
 
 
 // ✅ Contexto global de autenticación
@@ -18,12 +14,20 @@ export function AuthProvider({ children }) {
 
     // ✅ Revisar si ya había sesión iniciada
     // ✅ Sesión inicial
-    getCurrentSession().then((session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const loadSession = async () => {
+      try {
+        const session = await getCurrentSession();
+        setUser(session?.user ?? null);
+      } catch (err) {
+        console.error("Error cargando sesión:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    
+    loadSession();
+
 
     // Escuchar cambios de sesión (login/logout)
     // Suscribirse a cambios de sesión
@@ -39,10 +43,15 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-   const handleLogout = async () => {
-    await logout();
-    setUser(null);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setUser(null);
+    } catch (err) {
+      console.error("Error cerrando sesión:", err);
+    }
   };
+
 
 
    return (

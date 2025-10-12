@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; // 👈 si usas lucide-react
 import { register } from "../services/auth";
+import { Link } from "react-router-dom"; // 👈 para el enlace
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("");
@@ -72,6 +73,19 @@ export default function RegisterForm() {
             className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold p-3 rounded-lg transition duration-300 shadow-md hover:shadow-green-500/30">
             Registrarme
           </button>
+
+
+          {/* 🔹 Enlace moderno a login */}
+          <p className="text-center text-gray-400 text-sm mt-4">
+            ¿Ya tienes una cuenta?{" "}
+            <Link
+              to="/login"
+              className="text-green-400 font-semibold hover:text-green-300 transition-colors duration-200 hover:underline"
+            >
+              Inicia sesión
+            </Link>
+          </p>
+
         </div>
       </form>
       
