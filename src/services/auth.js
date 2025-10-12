@@ -1,5 +1,10 @@
 import { supabase } from "../lib/supabaseClient";
 
+
+// 🔹 URL base según entorno
+const baseUrl = import.meta.env.VITE_APP_URL;
+
+
 // Obtener sesión actual
 export async function getCurrentSession() {
   const { data, error } = await supabase.auth.getSession();
@@ -23,7 +28,8 @@ export async function register(email, password) {
     email,
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}/login`,
+      //emailRedirectTo: `${window.location.origin}/login`,
+      emailRedirectTo: `${baseUrl}/login`, // usa la variable aquí
     },
   });
   if (error) throw error;
