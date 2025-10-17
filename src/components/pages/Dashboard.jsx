@@ -102,8 +102,8 @@ function Dashboard() {
                 <th className="p-3 border-b dark:border-gray-600 text-center">Nombre</th>
                 <th className="p-3 border-b dark:border-gray-600 text-center">Descripción</th>
                 <th className="p-3 border-b dark:border-gray-600 text-center">Cantidad</th>
-                <th className="p-3 border-b dark:border-gray-600 text-center">Fecha de compra</th>
-                <th className="p-3 border-b dark:border-gray-600 text-center">Fecha de vencimiento</th>
+                <th className="p-3 border-b dark:border-gray-600 text-center">Fecha de Compra</th>
+                <th className="p-3 border-b dark:border-gray-600 text-center">Fecha de Vencimiento</th>
               </tr>
             </thead>
             <tbody>
